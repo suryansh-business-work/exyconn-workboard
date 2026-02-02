@@ -1,0 +1,36 @@
+name: 📝 TypeCheck
+
+on:
+  push:
+    branches: [main, feature/*, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck-ui:
+    name: 🎨 TypeCheck UI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - run: npm install --legacy-peer-deps
+      - run: npm run typecheck --if-present
+
+  typecheck-server:
+    name: ⚙️ TypeCheck Server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - run: npm install --legacy-peer-deps
+      - run: npm run typecheck --if-present

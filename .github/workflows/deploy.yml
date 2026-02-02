@@ -1,0 +1,135 @@
+# =============================================================================
+# Exyconn Workboard Deployment
+# Services: UI (Port: 4010) | Server (Port: 4011)
+# Domain: workboard.exyconn.com
+# =============================================================================
+
+name: 🚀 Deploy Workboard
+
+on:
+  push:
+    branches: [main]
+    paths: ['ui/**', 'server/**', 'docker-compose.yml', '.github/workflows/deploy.yml']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📢 Slack - Started
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "attachments": [{"color": "#0066FF", "blocks": [
+              {"type": "header", "text": {"type": "plain_text", "text": "🚀 Workboard - Deployment Started", "emoji": true}},
+              {"type": "section", "fields": [
+                {"type": "mrkdwn", "text": "*📦 Service:*\nExyconn Workboard"},
+                {"type": "mrkdwn", "text": "*🔌 Ports:*\n4010 (UI) | 4011 (Server)"},
+                {"type": "mrkdwn", "text": "*👤 By:*\n${{ github.actor }}"},
+                {"type": "mrkdwn", "text": "*🏷️ Build:*\n#${{ github.run_number }}"}
+              ]}
+            ]}]
+          }' ${{ secrets.SLACK_WEBHOOK }}
+
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏗️ Build & Push UI
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ui
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-workboard-ui:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 🏗️ Build & Push Server
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-workboard-server:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 🚀 Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            
+            docker network create exyconn-network 2>/dev/null || true
+            
+            sudo fuser -k 4010/tcp 2>/dev/null || true
+            sudo fuser -k 4011/tcp 2>/dev/null || true
+            
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-workboard-server:latest
+            docker stop exyconn-workboard-server 2>/dev/null || true
+            docker rm -f exyconn-workboard-server 2>/dev/null || true
+            
+            docker ps -q --filter "publish=4011" | xargs -r docker stop || true
+            docker ps -aq --filter "publish=4011" | xargs -r docker rm -f || true
+            
+            docker run -d \
+              --name exyconn-workboard-server \
+              --restart unless-stopped \
+              --network exyconn-network \
+              -p 4011:4011 \
+              -e NODE_ENV=production \
+              -e PORT=4011 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-workboard-server:latest
+            
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-workboard-ui:latest
+            docker stop exyconn-workboard-ui 2>/dev/null || true
+            docker rm -f exyconn-workboard-ui 2>/dev/null || true
+            
+            docker ps -q --filter "publish=4010" | xargs -r docker stop || true
+            docker ps -aq --filter "publish=4010" | xargs -r docker rm -f || true
+            
+            docker run -d \
+              --name exyconn-workboard-ui \
+              --restart unless-stopped \
+              --network exyconn-network \
+              -p 4010:80 \
+              -e NODE_ENV=production \
+              -e VITE_API_URL=https://workboard-api.exyconn.com \
+              ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-workboard-ui:latest
+            
+            sleep 5
+            echo "=== Running Containers ==="
+            docker ps --filter "name=exyconn-workboard"
+
+      - name: ✅ Slack - Success
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "attachments": [{"color": "#00C853", "blocks": [
+              {"type": "header", "text": {"type": "plain_text", "text": "✅ Workboard - Deployed!", "emoji": true}},
+              {"type": "section", "fields": [
+                {"type": "mrkdwn", "text": "*🌐 UI:*\nhttps://workboard.exyconn.com"},
+                {"type": "mrkdwn", "text": "*🔌 Ports:*\n4010 | 4011"}
+              ]},
+              {"type": "actions", "elements": [
+                {"type": "button", "text": {"type": "plain_text", "text": "🌐 Open Workboard"}, "url": "https://workboard.exyconn.com", "style": "primary"}
+              ]}
+            ]}]
+          }' ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: ❌ Slack - Failed
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "attachments": [{"color": "#FF1744", "blocks": [
+              {"type": "header", "text": {"type": "plain_text", "text": "❌ Workboard - FAILED!", "emoji": true}},
+              {"type": "actions", "elements": [
+                {"type": "button", "text": {"type": "plain_text", "text": "📋 Logs"}, "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}", "style": "danger"}
+              ]}
+            ]}]
+          }' ${{ secrets.SLACK_WEBHOOK }}
