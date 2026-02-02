@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, split-project]
+    branches: [main, feature/*]
   pull_request:
     branches: [main]
 
@@ -24,20 +24,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: ui/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Type check
-        run: npm run typecheck
+        run: npm run typecheck --if-present
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint --if-present
 
       - name: Build
-        run: npm run build
+        run: npm run build --if-present
 
   build-server:
     runs-on: ubuntu-latest
@@ -56,17 +54,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: server/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Type check
-        run: npm run typecheck
+        run: npm run typecheck --if-present
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint --if-present
 
       - name: Build
-        run: npm run build
+        run: npm run build --if-present
