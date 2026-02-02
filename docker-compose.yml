@@ -1,0 +1,73 @@
+# =============================================================================
+# Exyconn Workboard - Docker Compose
+# UI: Port 4010 | Server: Port 4011
+# Domains: workboard.exyconn.com | workboard-api.exyconn.com
+# =============================================================================
+
+services:
+  # ============================================================================
+  # WORKBOARD UI (workboard.exyconn.com) - Port 4010
+  # ============================================================================
+  workboard-ui:
+    container_name: exyconn-workboard-ui
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:4011}
+    restart: unless-stopped
+    ports:
+      - "4010:80"
+    depends_on:
+      workboard-server:
+        condition: service_healthy
+    networks:
+      - workboard-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ============================================================================
+  # WORKBOARD SERVER (workboard-api.exyconn.com) - Port 4011
+  # ============================================================================
+  workboard-server:
+    container_name: exyconn-workboard-server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "4011:4011"
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=4011
+    volumes:
+      - workboard-data:/app/data
+    networks:
+      - workboard-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:4011/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  workboard-network:
+    driver: bridge
+    name: exyconn-workboard-network
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  workboard-data:
+    driver: local

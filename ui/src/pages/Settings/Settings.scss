@@ -1,0 +1,10 @@
+.settings {
+  &__container {
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+  }
+
+  &__tab-panel {
+    min-height: 400px;
+  }
+}

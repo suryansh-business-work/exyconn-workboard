@@ -1,0 +1,126 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  background-color: $bg-default;
+  color: $text-primary;
+}
+
+#root {
+  height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page-container {
+  padding: $spacing-unit * 3;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-unit * 3;
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: $text-primary;
+  }
+}
+
+// Status badges
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+
+  &.todo {
+    background-color: rgba($status-todo, 0.15);
+    color: $status-todo;
+  }
+
+  &.in-progress {
+    background-color: rgba($status-in-progress, 0.15);
+    color: $status-in-progress;
+  }
+
+  &.in-review {
+    background-color: rgba($status-in-review, 0.15);
+    color: $status-in-review;
+  }
+
+  &.done {
+    background-color: rgba($status-done, 0.15);
+    color: $status-done;
+  }
+}
+
+// Priority badges
+.priority-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+
+  &.high {
+    background-color: rgba($priority-high, 0.15);
+    color: $priority-high;
+  }
+
+  &.medium {
+    background-color: rgba($priority-medium, 0.15);
+    color: $priority-medium;
+  }
+
+  &.low {
+    background-color: rgba($priority-low, 0.15);
+    color: $priority-low;
+  }
+}
+
+// Label chips
+.label-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+
+// Scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+
+  &:hover {
+    background: #a8a8a8;
+  }
+}

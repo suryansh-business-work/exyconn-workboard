@@ -1,0 +1,66 @@
+{
+  "name": "@exyconn/workboard",
+  "version": "1.0.0",
+  "description": "Exyconn Workboard - Project Tracking System",
+  "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev:ui": "cd ui && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "dev": "concurrently \"npm run dev:ui\" \"npm run dev:server\"",
+    
+    "build:ui": "cd ui && npm run build",
+    "build:server": "cd server && npm run build",
+    "build": "npm run build:ui && npm run build:server",
+    
+    "typecheck:ui": "cd ui && npm run typecheck",
+    "typecheck:server": "cd server && npm run typecheck",
+    "typecheck": "npm run typecheck:ui && npm run typecheck:server",
+    
+    "lint:ui": "cd ui && npm run lint",
+    "lint:server": "cd server && npm run lint",
+    "lint": "npm run lint:ui && npm run lint:server",
+    
+    "lint:fix:ui": "cd ui && npm run lint:fix",
+    "lint:fix:server": "cd server && npm run lint:fix",
+    "lint:fix": "npm run lint:fix:ui && npm run lint:fix:server",
+    
+    "format:ui": "cd ui && npm run format",
+    "format:server": "cd server && npm run format",
+    "format": "npm run format:ui && npm run format:server",
+    
+    "format:check:ui": "cd ui && npm run format:check",
+    "format:check:server": "cd server && npm run format:check",
+    "format:check": "npm run format:check:ui && npm run format:check:server",
+    
+    "install:ui": "cd ui && npm install",
+    "install:server": "cd server && npm install",
+    "install:all": "npm run install:ui && npm run install:server",
+    
+    "clean:ui": "cd ui && rm -rf node_modules dist",
+    "clean:server": "cd server && rm -rf node_modules dist",
+    "clean": "npm run clean:ui && npm run clean:server",
+    
+    "docker:build": "docker-compose build",
+    "docker:build:no-cache": "docker-compose build --no-cache",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose down && docker-compose up -d",
+    
+    "validate": "npm run typecheck && npm run lint && npm run format:check && npm run build",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suryansh-business-work/exyconn-workboard.git"
+  },
+  "author": "Exyconn Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "husky": "^9.1.7"
+  }
+}

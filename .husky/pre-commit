@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$branch" = "main" ]; then
+  echo "❌ Direct push to 'main' branch is not allowed!"
+  echo "📝 Please create a feature branch and submit a pull request."
+  exit 1
+fi
+echo "✅ Branch check passed: $branch"

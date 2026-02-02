@@ -1,0 +1,30 @@
+.settings-tab {
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-unit * 3;
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+
+  &__form {
+    padding-top: $spacing-unit;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-unit * 2;
+  }
+}

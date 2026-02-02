@@ -1,0 +1,48 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+
+  &-appbar {
+    background-color: $bg-paper;
+    color: $text-primary;
+    box-shadow: $shadow-sm;
+  }
+
+  &-drawer {
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: $spacing-unit * 2;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    &__title {
+      font-weight: 700;
+      color: $primary-color;
+    }
+
+    &__item {
+      margin: calc($spacing-unit / 2) $spacing-unit;
+      border-radius: $border-radius-md;
+
+      &.Mui-selected {
+        background-color: rgba($primary-color, 0.1);
+
+        .layout-drawer__icon {
+          color: $primary-color;
+        }
+      }
+    }
+
+    &__icon {
+      min-width: 40px;
+      color: $text-secondary;
+    }
+  }
+
+  &-main {
+    background-color: $bg-default;
+    min-height: 100vh;
+  }
+}

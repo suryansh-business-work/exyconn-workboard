@@ -1,0 +1,93 @@
+.task-detail {
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-unit * 3;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-unit;
+  }
+
+  &__content {
+    padding: $spacing-unit * 3;
+    border-radius: $border-radius-lg;
+  }
+
+  &__title-section {
+    margin-bottom: $spacing-unit * 2;
+  }
+
+  &__id {
+    font-family: monospace;
+    color: $primary-color;
+    font-size: 0.875rem;
+  }
+
+  &__title {
+    margin: $spacing-unit 0;
+    font-weight: 600;
+  }
+
+  &__badges {
+    display: flex;
+    gap: $spacing-unit;
+  }
+
+  &__description {
+    white-space: pre-wrap;
+    color: $text-secondary;
+    line-height: 1.7;
+  }
+
+  &__image {
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  &__info-card {
+    padding: $spacing-unit * 2;
+    border-radius: $border-radius-md;
+  }
+
+  &__info-item {
+    margin-bottom: $spacing-unit * 2;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .MuiTypography-caption {
+      color: $text-secondary;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .MuiTypography-body1 {
+      margin-top: calc($spacing-unit / 2);
+      font-weight: 500;
+    }
+  }
+
+  &__labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc($spacing-unit / 2);
+    margin-top: calc($spacing-unit / 2);
+  }
+}

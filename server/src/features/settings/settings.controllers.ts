@@ -1,0 +1,311 @@
+import { Request, Response } from 'express';
+import * as settingsService from './settings.services';
+import { sendTestEmail } from '../email/email.services';
+
+export async function getSMTPConfig(_req: Request, res: Response): Promise<void> {
+  const config = await settingsService.getSMTPConfig();
+  res.json({ ...config.toObject(), password: config.password ? '********' : '' });
+}
+
+export async function updateSMTPConfig(req: Request, res: Response): Promise<void> {
+  const currentConfig = await settingsService.getSMTPConfig();
+  const newConfig = {
+    ...req.body,
+    password:
+      req.body.password === '********' ? currentConfig.password : req.body.password,
+  };
+  const config = await settingsService.updateSMTPConfig(newConfig);
+  res.json({ ...config.toObject(), password: '********' });
+}
+
+export async function testSMTPConfig(req: Request, res: Response): Promise<void> {
+  const result = await sendTestEmail(req.body.email);
+  res.json(result);
+}
+
+export async function getImageKitConfig(_req: Request, res: Response): Promise<void> {
+  const config = await settingsService.getImageKitConfig();
+  res.json({ ...config.toObject(), privateKey: config.privateKey ? '********' : '' });
+}
+
+export async function updateImageKitConfig(req: Request, res: Response): Promise<void> {
+  const currentConfig = await settingsService.getImageKitConfig();
+  const newConfig = {
+    ...req.body,
+    privateKey:
+      req.body.privateKey === '********' ? currentConfig.privateKey : req.body.privateKey,
+  };
+  const config = await settingsService.updateImageKitConfig(newConfig);
+  res.json({ ...config.toObject(), privateKey: '********' });
+}
+
+export async function getOpenAIConfig(_req: Request, res: Response): Promise<void> {
+  const config = await settingsService.getOpenAIConfig();
+  res.json({
+    apiKey: config.apiKey ? '********' : '',
+    openAIModel: config.openAIModel,
+    maxTokens: config.maxTokens,
+  });
+}
+
+export async function updateOpenAIConfig(req: Request, res: Response): Promise<void> {
+  const currentConfig = await settingsService.getOpenAIConfig();
+  const newConfig = {
+    ...req.body,
+    apiKey: req.body.apiKey === '********' ? currentConfig.apiKey : req.body.apiKey,
+  };
+  const config = await settingsService.updateOpenAIConfig(newConfig);
+  res.json({
+    apiKey: '********',
+    openAIModel: config.openAIModel,
+    maxTokens: config.maxTokens,
+  });
+}
+
+export async function parseTaskFromChat(req: Request, res: Response): Promise<void> {
+  try {
+    const openaiConfig = await settingsService.getOpenAIConfig();
+    if (!openaiConfig.apiKey) {
+      res.status(400).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
+
+    const { message, history } = req.body;
+
+    // Build messages array with history for context
+    const messages: Array<{ role: string; content: string }> = [
+      {
+        role: 'system',
+        content: `You are a task parser. Parse the user's message and extract task details. If the user is refining or updating a previous task description, incorporate those changes. Return a JSON object with these fields:
+- title: string (required, concise task title)
+- description: string (MUST be valid HTML rich text using tags like <p>, <strong>, <em>, <ul>, <ol>, <li>, <h3>, <blockquote>, <code>, <a>. Format the description nicely with proper paragraphs, bullet points where appropriate, and emphasis on key terms. Do NOT use markdown, only HTML tags.)
+- priority: "low" | "medium" | "high" (infer from urgency)
+- labels: string[] (relevant labels like "bug", "feature", "enhancement", "documentation", "urgent")
+- estimatedDueDate: number (days from now, default 7)
+
+Only return valid JSON, no markdown or explanation.`,
+      },
+    ];
+
+    // Add chat history for context if provided
+    if (history && Array.isArray(history)) {
+      messages.push(
+        ...history.map((h: { role: string; content: string }) => ({
+          role: h.role === 'user' ? 'user' : 'assistant',
+          content: h.content,
+        }))
+      );
+    }
+
+    // Add current message
+    messages.push({
+      role: 'user',
+      content: message,
+    });
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openaiConfig.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: openaiConfig.openAIModel || 'gpt-4o-mini',
+        max_tokens: openaiConfig.maxTokens || 1000,
+        messages,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = (await response.json()) as { error?: { message?: string } };
+      res.status(500).json({ error: errorData.error?.message || 'OpenAI API error' });
+      return;
+    }
+
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const parsed = JSON.parse(data.choices[0].message.content);
+    res.json(parsed);
+  } catch (error) {
+    console.error('Parse task error:', error);
+    res.status(500).json({ error: 'Failed to parse task' });
+  }
+}
+
+interface TaskForAnalysis {
+  id: string;
+  taskId: string;
+  title: string;
+  description?: string;
+  status: string;
+  priority: string;
+  labels?: string[];
+  assignee?: string;
+  dueDate?: string;
+}
+
+export async function analyzeTasksWithAI(req: Request, res: Response): Promise<void> {
+  try {
+    const openaiConfig = await settingsService.getOpenAIConfig();
+    if (!openaiConfig.apiKey) {
+      res.status(400).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
+
+    const { message, tasks, history } = req.body as {
+      message: string;
+      tasks: TaskForAnalysis[];
+      history?: { role: string; content: string }[];
+    };
+
+    // Build task summary for context
+    const taskSummary = tasks
+      .map(
+        (t: TaskForAnalysis) =>
+          `[${t.taskId}] ${t.title} | Status: ${t.status} | Priority: ${t.priority} | Labels: ${t.labels?.join(', ') || 'none'} | Assignee: ${t.assignee || 'unassigned'} | Due: ${t.dueDate || 'not set'}`
+      )
+      .join('\n');
+
+    const messages: Array<{ role: string; content: string }> = [
+      {
+        role: 'system',
+        content: `You are a smart task management assistant. You have access to the user's task list and can help analyze, prioritize, and suggest which tasks to focus on.
+
+Current Tasks:
+${taskSummary}
+
+Based on user queries, provide helpful analysis and recommendations. Return a JSON object with:
+- response: string (your helpful response text)
+- suggestedTaskIds: string[] (array of task IDs to highlight/filter, if applicable)
+- action: string | null (optional action like "filter", "sort", "highlight")
+
+Be concise but helpful. If suggesting tasks, explain why.`,
+      },
+    ];
+
+    // Add chat history for context if provided
+    if (history && Array.isArray(history)) {
+      messages.push(
+        ...history.map((h: { role: string; content: string }) => ({
+          role: h.role === 'user' ? 'user' : 'assistant',
+          content: h.content,
+        }))
+      );
+    }
+
+    messages.push({
+      role: 'user',
+      content: message,
+    });
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openaiConfig.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: openaiConfig.openAIModel || 'gpt-4o-mini',
+        max_tokens: openaiConfig.maxTokens || 1000,
+        messages,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = (await response.json()) as { error?: { message?: string } };
+      res.status(500).json({ error: errorData.error?.message || 'OpenAI API error' });
+      return;
+    }
+
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const result = JSON.parse(data.choices[0].message.content);
+    res.json(result);
+  } catch (error) {
+    console.error('Analyze tasks error:', error);
+    res.status(500).json({ error: 'Failed to analyze tasks' });
+  }
+}
+
+export async function rewriteWithAI(req: Request, res: Response): Promise<void> {
+  try {
+    const openaiConfig = await settingsService.getOpenAIConfig();
+    if (!openaiConfig.apiKey) {
+      res.status(400).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
+
+    const { text, context } = req.body as { text: string; context?: string };
+
+    const baseInstructions = `Improve the English grammar and vocabulary. Make it short, more descriptive and informative. Keep the technical accuracy intact.
+    
+IMPORTANT: Return the response as valid HTML rich text using tags like <p>, <strong>, <em>, <ul>, <ol>, <li>, <h3>, <blockquote>, <code>, <a>. Format nicely with proper paragraphs, bullet points where appropriate, and emphasis on key terms. Do NOT use markdown syntax like ** or -, only use HTML tags. Do NOT wrap in code blocks.`;
+
+    const systemPrompt = context
+      ? `You are a professional technical writer. ${baseInstructions} Context: ${context}. Return only the rewritten HTML content, no explanations.`
+      : `You are a professional technical writer. ${baseInstructions} Return only the rewritten HTML content, no explanations.`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openaiConfig.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: openaiConfig.openAIModel || 'gpt-4o-mini',
+        max_tokens: openaiConfig.maxTokens || 1000,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: text },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = (await response.json()) as { error?: { message?: string } };
+      res.status(500).json({ error: errorData.error?.message || 'OpenAI API error' });
+      return;
+    }
+
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    res.json({ rewrittenText: data.choices[0].message.content });
+  } catch (error) {
+    console.error('Rewrite error:', error);
+    res.status(500).json({ error: 'Failed to rewrite text' });
+  }
+}
+
+export async function getDailyReportSettings(
+  _req: Request,
+  res: Response
+): Promise<void> {
+  const config = await settingsService.getDailyReportSettings();
+  res.json(config);
+}
+
+export async function updateDailyReportSettings(
+  req: Request,
+  res: Response
+): Promise<void> {
+  const config = await settingsService.updateDailyReportSettings(req.body);
+  res.json(config);
+}
+
+export async function sendStatusToAllResources(
+  _req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const sentCount = await settingsService.sendStatusToAllResources();
+    res.json({ sentCount });
+  } catch (error) {
+    console.error('Send status to all resources error:', error);
+    res.status(500).json({ error: 'Failed to send status report' });
+  }
+}
