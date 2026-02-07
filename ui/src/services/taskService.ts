@@ -5,6 +5,8 @@ import {
   UpdateTaskPayload,
   Comment,
   AddCommentPayload,
+  AgentExecutionLog,
+  AgentExecutionNodeResult,
 } from '../types';
 
 // Transform MongoDB _id to id
@@ -124,5 +126,26 @@ export const taskService = {
 
   deleteComment: async (taskId: string, commentId: string): Promise<void> => {
     await api.delete(`/tasks/${taskId}/comments/${commentId}`);
+  },
+
+  // Agent execution methods
+  logAgentExecution: async (
+    taskId: string,
+    data: {
+      agentId: string;
+      agentName: string;
+      status: 'running' | 'success' | 'error';
+      nodeResults: AgentExecutionNodeResult[];
+      totalDuration: number;
+      triggeredBy: string;
+    }
+  ): Promise<AgentExecutionLog> => {
+    const response = await api.post(`/tasks/${taskId}/agent-execute`, data);
+    return response.data;
+  },
+
+  getAgentExecutionLogs: async (taskId: string): Promise<AgentExecutionLog[]> => {
+    const response = await api.get(`/tasks/${taskId}/agent-logs`);
+    return response.data;
   },
 };

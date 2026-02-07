@@ -9,6 +9,8 @@ import {
   parseTaskSchema,
   analyzeTasksSchema,
   rewriteTextSchema,
+  generateCodeSchema,
+  generateComponentSchema,
 } from './settings.validators';
 
 const router = Router();
@@ -55,6 +57,17 @@ router.post(
   '/openai/rewrite',
   validate({ body: rewriteTextSchema }),
   settingsController.rewriteWithAI
+);
+
+router.post(
+  '/openai/generate-code',
+  validate({ body: generateCodeSchema }),
+  settingsController.generateCode
+);
+router.post(
+  '/openai/generate-component',
+  validate({ body: generateComponentSchema }),
+  settingsController.generateComponent
 );
 
 // Daily Report

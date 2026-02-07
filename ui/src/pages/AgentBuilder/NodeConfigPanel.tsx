@@ -35,12 +35,15 @@ const NodeConfigPanel = ({
 }: Props) => {
   const config = node.data?.config ?? {};
   const category = node.data?.category ?? '';
-  const isCodeNode = category === 'logic' || category === 'custom';
 
   const component = useMemo(
     () => components.find((c) => c.id === node.data.componentId),
     [components, node.data.componentId]
   );
+
+  const isCodeNode = category === 'logic' || category === 'custom';
+  const hasDefaultCode = !!component?.defaultCode?.trim();
+  const showCode = isCodeNode || hasDefaultCode || !!config._code;
 
   const handleChange = (key: string, value: string) => {
     onUpdateConfig(node.id, { ...config, [key]: value });
@@ -52,11 +55,11 @@ const NodeConfigPanel = ({
     <Paper
       variant="outlined"
       sx={{
-        width: 320,
-        minWidth: 320,
+        width: 300,
+        minWidth: 300,
         height: '100%',
         overflow: 'auto',
-        p: 2,
+        p: 1.5,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -116,6 +119,7 @@ const NodeConfigPanel = ({
               select={field.type === 'select'}
               required={field.required}
               placeholder={field.placeholder}
+              helperText={field.placeholder || (field.required ? 'Required' : 'Optional')}
               value={config[field.key] || field.defaultValue || ''}
               onChange={(e) => handleChange(field.key, e.target.value)}
               size="small"
@@ -139,11 +143,12 @@ const NodeConfigPanel = ({
         </Box>
       )}
 
-      {isCodeNode && (
+      {showCode && (
         <NodeCodeSection
           code={config._code || component?.defaultCode || ''}
           onChange={(val) => handleChange('_code', val)}
           lastResult={lastResults[node.id]}
+          nodeConfig={config}
         />
       )}
 
@@ -156,7 +161,7 @@ const NodeConfigPanel = ({
         </Box>
       )}
 
-      {schema.length === 0 && !isCodeNode && category !== 'custom' && (
+      {schema.length === 0 && !showCode && category !== 'custom' && (
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           This component has no configuration fields.
         </Typography>

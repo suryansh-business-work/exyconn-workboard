@@ -37,26 +37,31 @@ const ComponentPalette = ({ components, onDragStart }: Props) => {
     <Paper
       variant="outlined"
       sx={{
-        width: 240,
-        minWidth: 240,
+        width: 200,
+        minWidth: 200,
         height: '100%',
         overflow: 'auto',
-        p: 1.5,
+        p: 1,
         display: 'flex',
         flexDirection: 'column',
       }}
     >
-      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
+      <Typography variant="caption" sx={{ mb: 0.5, fontWeight: 700, fontSize: 12 }}>
         Components
       </Typography>
-      <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5 }}>
-        Drag components onto the canvas
+      <Typography variant="caption" color="text.secondary" sx={{ mb: 1, fontSize: 10 }}>
+        Drag onto canvas
       </Typography>
       {Object.entries(grouped).map(([category, items]) => (
-        <Box key={category} sx={{ mb: 1.5 }}>
+        <Box key={category} sx={{ mb: 1 }}>
           <Typography
             variant="caption"
-            sx={{ fontWeight: 600, textTransform: 'uppercase', color: 'text.secondary' }}
+            sx={{
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              color: 'text.secondary',
+              fontSize: 9,
+            }}
           >
             {CATEGORY_LABELS[category as AgentComponentCategory] || category}
           </Typography>
@@ -76,8 +81,9 @@ const ComponentPalette = ({ components, onDragStart }: Props) => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1,
-                p: 1,
+                gap: 0.5,
+                px: 0.75,
+                py: 0.5,
                 mb: 0.5,
                 borderRadius: 1,
                 border: '1px solid',
@@ -89,8 +95,8 @@ const ComponentPalette = ({ components, onDragStart }: Props) => {
             >
               <Box
                 sx={{
-                  width: 10,
-                  height: 10,
+                  width: 8,
+                  height: 8,
                   borderRadius: '50%',
                   backgroundColor: comp.color,
                   flexShrink: 0,
@@ -98,8 +104,8 @@ const ComponentPalette = ({ components, onDragStart }: Props) => {
               />
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 500, lineHeight: 1.2 }}
+                  variant="caption"
+                  sx={{ fontWeight: 500, lineHeight: 1.2, fontSize: 11 }}
                   noWrap
                 >
                   {comp.name}

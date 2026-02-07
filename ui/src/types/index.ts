@@ -3,6 +3,30 @@ export interface TaskAgent {
   agentName: string;
 }
 
+export interface AgentExecutionNodeResult {
+  nodeId: string;
+  nodeName: string;
+  category: string;
+  success: boolean;
+  result?: unknown;
+  error?: string;
+  logs: string[];
+  duration: number;
+}
+
+export interface AgentExecutionLog {
+  _id: string;
+  taskId: string;
+  agentId: string;
+  agentName: string;
+  status: 'running' | 'success' | 'error';
+  nodeResults: AgentExecutionNodeResult[];
+  totalDuration: number;
+  triggeredBy: string;
+  startedAt: string;
+  completedAt?: string;
+}
+
 export interface Task {
   id: string;
   taskId: string;

@@ -309,3 +309,98 @@ export async function sendStatusToAllResources(
     res.status(500).json({ error: 'Failed to send status report' });
   }
 }
+
+export async function generateCode(req: Request, res: Response): Promise<void> {
+  try {
+    const openaiConfig = await settingsService.getOpenAIConfig();
+    if (!openaiConfig.apiKey) {
+      res.status(400).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
+    const { prompt, currentCode } = req.body as { prompt: string; currentCode?: string };
+    const systemPrompt = `You are a JavaScript code generator for an agent workflow builder. Generate ONLY valid JavaScript code — no explanations, no markdown, no code fences.\nThe code runs inside a function with these available variables:\n- context.config: node config object\n- context.nodeId: current node id\n- context.nodeName: node name\n- context.category: node category\n- context.inputs: object with outputs from connected parent nodes\n- console.log/warn/error: for logging\n- Return a value to pass output to downstream nodes.\nCurrent code:\n${currentCode || '// empty'}`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openaiConfig.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: openaiConfig.openAIModel || 'gpt-4o-mini',
+        max_tokens: openaiConfig.maxTokens || 1500,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+      }),
+    });
+    if (!response.ok) {
+      const errorData = (await response.json()) as { error?: { message?: string } };
+      res.status(500).json({ error: errorData.error?.message || 'OpenAI API error' });
+      return;
+    }
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const raw = data.choices?.[0]?.message?.content || '';
+    const code = raw
+      .replace(/^```[\w]*\n?/gm, '')
+      .replace(/```$/gm, '')
+      .trim();
+    res.json({ code });
+  } catch (error) {
+    console.error('Generate code error:', error);
+    res.status(500).json({ error: 'Failed to generate code' });
+  }
+}
+
+export async function generateComponent(req: Request, res: Response): Promise<void> {
+  try {
+    const openaiConfig = await settingsService.getOpenAIConfig();
+    if (!openaiConfig.apiKey) {
+      res.status(400).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
+    const { prompt } = req.body as { prompt: string };
+    const systemPrompt = `You are an agent component generator. Given a user description, generate a complete agent component definition as JSON with these fields:
+- name: string (short descriptive name, max 50 chars)
+- category: one of "event" | "data-scrapper" | "communication" | "ai" | "action" | "logic" | "custom"
+- description: string (1-2 sentence description)
+- color: hex color code from: #1976d2, #f57c00, #2e7d32, #9c27b0, #d32f2f, #00796b, #616161, #e91e63
+- configSchema: array of config fields, each with { key: string, label: string, type: "text"|"number"|"textarea"|"select"|"password", required: boolean, defaultValue: string, placeholder: string, options: { label: string, value: string }[] }
+- defaultCode: string (JavaScript code that implements the component logic. The code runs in a sandboxed function with context.config, context.inputs, context.nodeId, context.nodeName, console.log available. Return a value to output.)
+
+Generate realistic, working code. Only return valid JSON, no markdown.`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openaiConfig.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: openaiConfig.openAIModel || 'gpt-4o-mini',
+        max_tokens: openaiConfig.maxTokens || 2000,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        response_format: { type: 'json_object' },
+      }),
+    });
+    if (!response.ok) {
+      const errorData = (await response.json()) as { error?: { message?: string } };
+      res.status(500).json({ error: errorData.error?.message || 'OpenAI API error' });
+      return;
+    }
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const parsed = JSON.parse(data.choices[0].message.content);
+    res.json(parsed);
+  } catch (error) {
+    console.error('Generate component error:', error);
+    res.status(500).json({ error: 'Failed to generate component' });
+  }
+}

@@ -17,30 +17,8 @@ const AICodePrompt = ({ currentCode, onCodeGenerated }: Props) => {
     if (!trimmed || loading) return;
     try {
       setLoading(true);
-      const config = await settingsService.getOpenAIConfig();
-      if (!config?.apiKey) return;
-
-      const systemPrompt = `You are a JavaScript code generator for an agent workflow builder. Generate ONLY valid JavaScript code — no explanations, no markdown, no code fences. The code runs in a sandboxed Web Worker with a "context" object containing node config and workflow data. Current code:\n${currentCode || '// empty'}`;
-
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: config.openAIModel || 'gpt-4o-mini',
-          max_tokens: config.maxTokens || 1500,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: trimmed },
-          ],
-        }),
-      });
-      const data = await res.json();
-      const generated = data.choices?.[0]?.message?.content || '';
-      const cleaned = generated.replace(/^```[\w]*\n?/gm, '').replace(/```$/gm, '').trim();
-      if (cleaned) onCodeGenerated(cleaned);
+      const { code } = await settingsService.generateCode(trimmed, currentCode);
+      if (code) onCodeGenerated(code);
       setPrompt('');
     } catch {
       /* ignore */

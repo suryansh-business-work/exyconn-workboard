@@ -22,32 +22,18 @@ const BuilderChatPanel = ({ agentName, nodes, edges }: Props) => {
   const [expanded, setExpanded] = useState(false);
 
   const handleSendMessage = useCallback(
-    async (message: string, history: { role: string; content: string }[]) => {
-      const contextPrompt = `You are an AI agent builder assistant. The user is building an agent called "${agentName}". Current workflow has ${nodes.length} nodes and ${edges.length} connections. Nodes: ${JSON.stringify(nodes.map((n) => ({ name: n.componentName, category: n.category })))}. Help them optimize, debug, or extend the workflow.`;
-
-      const config = await settingsService.getOpenAIConfig();
-      const apiKey = config?.apiKey;
-      if (!apiKey)
-        return { content: 'OpenAI API key is not configured. Go to Settings to add it.' };
-
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: config.openAIModel || 'gpt-4o-mini',
-          max_tokens: config.maxTokens || 1000,
-          messages: [
-            { role: 'system', content: contextPrompt },
-            ...history.map((h) => ({ role: h.role, content: h.content })),
-            { role: 'user', content: message },
-          ],
-        }),
-      });
-      const data = await res.json();
-      return { content: data.choices?.[0]?.message?.content || 'No response' };
+    async (message: string, _history: { role: string; content: string }[]) => {
+      const contextInfo = `Agent: "${agentName}". ${nodes.length} nodes, ${edges.length} connections. Nodes: ${JSON.stringify(nodes.map((n) => ({ name: n.componentName, category: n.category })))}`;
+      const fullMessage = `[Workflow Context: ${contextInfo}]\n\nUser: ${message}`;
+      try {
+        const result = await settingsService.rewriteWithAI(
+          fullMessage,
+          'agent-workflow-assistant'
+        );
+        return { content: result.rewrittenText || 'No response' };
+      } catch {
+        return { content: 'Failed to get response. Check OpenAI settings.' };
+      }
     },
     [agentName, nodes, edges]
   );

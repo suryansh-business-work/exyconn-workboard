@@ -1,7 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
-  Node, Edge, Connection, addEdge, applyNodeChanges, applyEdgeChanges,
-  NodeChange, EdgeChange,
+  Node,
+  Edge,
+  Connection,
+  addEdge,
+  applyNodeChanges,
+  applyEdgeChanges,
+  NodeChange,
+  EdgeChange,
 } from '@xyflow/react';
 import { agentService, agentComponentService } from '../../services';
 import { Agent, AgentComponent, WorkflowNode, WorkflowEdge } from '../../types';

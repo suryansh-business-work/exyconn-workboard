@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button, CircularProgress, Box, Alert } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon, AutoAwesome as AIIcon } from '@mui/icons-material';
 import PageHeader from '../../components/PageHeader';
 import DeleteConfirmDialog from '../../components/DeleteConfirmDialog/DeleteConfirmDialog';
 import AgentComponentsTable from './AgentComponentsTable';
 import AgentComponentFormDialog from './AgentComponentFormDialog';
+import AIComponentDialog from './AIComponentDialog';
 import { agentComponentService } from '../../services';
 import { AgentComponent, CreateAgentComponentPayload } from '../../types';
 
@@ -13,6 +14,7 @@ const AgentComponents = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AgentComponent | null>(null);
   const [deleting, setDeleting] = useState<AgentComponent | null>(null);
 
@@ -83,9 +85,18 @@ const AgentComponents = () => {
         title="Agent Components"
         breadcrumbs={[{ label: 'Agents', path: '/agents' }, { label: 'Components' }]}
         action={
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate}>
-            Add Component
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant="outlined"
+              startIcon={<AIIcon />}
+              onClick={() => setAiDialogOpen(true)}
+            >
+              AI Generate
+            </Button>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate}>
+              Manual
+            </Button>
+          </Box>
         }
       />
       {error && (
@@ -113,6 +124,11 @@ const AgentComponents = () => {
         message={`Are you sure you want to delete "${deleting?.name}"?`}
         onClose={() => setDeleting(null)}
         onConfirm={handleDeleteConfirm}
+      />
+      <AIComponentDialog
+        open={aiDialogOpen}
+        onClose={() => setAiDialogOpen(false)}
+        onSubmit={handleSubmit}
       />
     </Box>
   );

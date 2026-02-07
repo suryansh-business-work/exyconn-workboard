@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -48,6 +48,31 @@ const AgentBuilderInner = () => {
     [nodes, triggerFromNode]
   );
 
+  const handleDownload = useCallback(() => {
+    const workflowData = {
+      agent: { name: agent?.name, description: agent?.description },
+      nodes: nodes.map((n) => ({
+        nodeId: n.id,
+        componentId: n.data.componentId,
+        componentName: n.data.componentName,
+        category: n.data.category,
+        position: n.position,
+        config: n.data.config ?? {},
+      })),
+      edges: edges.map((e) => ({ source: e.source, target: e.target })),
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(workflowData, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${agent?.name || 'workflow'}-export.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [agent, nodes, edges]);
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
@@ -55,7 +80,6 @@ const AgentBuilderInner = () => {
       </Box>
     );
   }
-
   if (!agent) {
     return <Alert severity="error">Agent not found</Alert>;
   }
@@ -69,7 +93,6 @@ const AgentBuilderInner = () => {
     position: n.position,
     config: n.data.config ?? {},
   }));
-
   const workflowEdges = edges.map((e) => ({
     edgeId: e.id,
     source: e.source,
@@ -77,7 +100,7 @@ const AgentBuilderInner = () => {
   }));
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 55px)' }}>
       <BuilderToolbar
         agentName={agent.name}
         saving={saving}
@@ -86,6 +109,7 @@ const AgentBuilderInner = () => {
         onSave={save}
         onExecute={executeWorkflow}
         onStop={stopExecution}
+        onDownload={handleDownload}
       />
       {error && (
         <Alert severity="error" sx={{ mx: 1, mt: 0.5 }} onClose={() => setError('')}>

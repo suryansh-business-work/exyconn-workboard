@@ -98,4 +98,20 @@ export const settingsService = {
     const response = await api.post('/settings/daily-report/send-to-all');
     return response.data;
   },
+
+  generateCode: async (
+    prompt: string,
+    currentCode: string
+  ): Promise<{ code: string }> => {
+    const response = await api.post('/settings/openai/generate-code', {
+      prompt,
+      currentCode,
+    });
+    return response.data;
+  },
+
+  generateComponent: async (prompt: string): Promise<Record<string, unknown>> => {
+    const response = await api.post('/settings/openai/generate-component', { prompt });
+    return response.data;
+  },
 };

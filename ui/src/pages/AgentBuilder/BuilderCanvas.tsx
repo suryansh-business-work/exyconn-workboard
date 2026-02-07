@@ -78,6 +78,8 @@ const BuilderCanvas = ({
         onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
         fitView
+        fitViewOptions={{ padding: 0.4, maxZoom: 0.85 }}
+        minZoom={0.2}
         deleteKeyCode="Delete"
       >
         <Background />

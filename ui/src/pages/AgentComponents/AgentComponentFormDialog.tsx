@@ -1,12 +1,21 @@
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, MenuItem, Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+  Box,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useEffect } from 'react';
 import {
-  AgentComponent, AgentComponentCategory, CreateAgentComponentPayload, ConfigField,
+  AgentComponent,
+  AgentComponentCategory,
+  CreateAgentComponentPayload,
+  ConfigField,
 } from '../../types';
 import ConfigSchemaBuilder from './ConfigSchemaBuilder';
 import MuiIconPicker from './MuiIconPicker';
@@ -14,13 +23,25 @@ import { CATEGORY_DEFAULT_ICONS } from './iconList';
 import ComponentCodeEditor from './ComponentCodeEditor';
 
 const CATEGORIES: { value: AgentComponentCategory; label: string }[] = [
-  { value: 'event', label: 'Event' }, { value: 'data-scrapper', label: 'Data Scrapper' },
-  { value: 'communication', label: 'Communication' }, { value: 'ai', label: 'AI' },
-  { value: 'action', label: 'Action' }, { value: 'logic', label: 'Logic' },
+  { value: 'event', label: 'Event' },
+  { value: 'data-scrapper', label: 'Data Scrapper' },
+  { value: 'communication', label: 'Communication' },
+  { value: 'ai', label: 'AI' },
+  { value: 'action', label: 'Action' },
+  { value: 'logic', label: 'Logic' },
   { value: 'custom', label: 'Custom' },
 ];
 
-const COLORS = ['#1976d2', '#f57c00', '#2e7d32', '#9c27b0', '#d32f2f', '#00796b', '#616161', '#e91e63'];
+const COLORS = [
+  '#1976d2',
+  '#f57c00',
+  '#2e7d32',
+  '#9c27b0',
+  '#d32f2f',
+  '#00796b',
+  '#616161',
+  '#e91e63',
+];
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required').max(100),
@@ -164,12 +185,10 @@ const AgentComponentFormDialog = ({ open, component, onClose, onSubmit }: Props)
               formik.setFieldValue('configSchema', fields)
             }
           />
-          {(formik.values.category === 'logic' || formik.values.category === 'custom') && (
-            <ComponentCodeEditor
-              code={formik.values.defaultCode}
-              onChange={(code) => formik.setFieldValue('defaultCode', code)}
-            />
-          )}
+          <ComponentCodeEditor
+            code={formik.values.defaultCode}
+            onChange={(code) => formik.setFieldValue('defaultCode', code)}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

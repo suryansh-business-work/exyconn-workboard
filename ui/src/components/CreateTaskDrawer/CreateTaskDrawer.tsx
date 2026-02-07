@@ -49,7 +49,17 @@ const CreateTaskDrawer = ({ open, onClose, task }: CreateTaskDrawerProps) => {
 
         {/* Form Panel */}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <Box className="create-task-drawer__header">
+          <Box
+            className="create-task-drawer__header"
+            sx={{
+              maxHeight: 55,
+              minHeight: 55,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              px: 2,
+            }}
+          >
             <Typography variant="h6">{task ? 'Edit Task' : 'Create Task'}</Typography>
             <IconButton onClick={() => onClose()}>
               <CloseIcon />

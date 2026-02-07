@@ -8,6 +8,7 @@ import {
   aiSearchSchema,
   commentSchema,
   commentIdParamSchema,
+  agentExecutionSchema,
 } from './task.validators';
 
 const router = Router();
@@ -45,6 +46,19 @@ router.delete(
   '/:id/comments/:commentId',
   validate({ params: commentIdParamSchema }),
   taskController.deleteComment
+);
+
+// Agent execution routes
+router.get(
+  '/:id/agent-logs',
+  validate({ params: taskIdParamSchema }),
+  taskController.getAgentExecutionLogs
+);
+
+router.post(
+  '/:id/agent-execute',
+  validate({ params: taskIdParamSchema, body: agentExecutionSchema }),
+  taskController.logAgentExecution
 );
 
 router.post('/', validate({ body: createTaskSchema }), taskController.createTask);

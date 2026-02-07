@@ -91,7 +91,9 @@ const AgentNode = ({ data, selected, id }: NodeProps & { data: AgentNodeData }) 
               color="success"
               onClick={(e) => {
                 e.stopPropagation();
-                const onTrigger = data?.onTrigger as ((nodeId: string) => void) | undefined;
+                const onTrigger = data?.onTrigger as
+                  | ((nodeId: string) => void)
+                  | undefined;
                 if (onTrigger) onTrigger(id);
               }}
               sx={{
