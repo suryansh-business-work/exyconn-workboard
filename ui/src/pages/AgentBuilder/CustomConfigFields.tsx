@@ -36,13 +36,7 @@ const CustomConfigFields = ({ config, onChange }: Props) => {
       </Typography>
       {entries.map(([key, value]) => (
         <Box key={key} sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
-          <TextField
-            size="small"
-            label="Key"
-            value={key}
-            disabled
-            sx={{ flex: 1 }}
-          />
+          <TextField size="small" label="Key" value={key} disabled sx={{ flex: 1 }} />
           <TextField
             size="small"
             label="Value"
@@ -62,11 +56,19 @@ const CustomConfigFields = ({ config, onChange }: Props) => {
           value={newKey}
           onChange={(e) => setNewKey(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') { e.preventDefault(); handleAdd(); }
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleAdd();
+            }
           }}
           sx={{ flex: 1 }}
         />
-        <Button size="small" startIcon={<AddIcon />} onClick={handleAdd} disabled={!newKey.trim()}>
+        <Button
+          size="small"
+          startIcon={<AddIcon />}
+          onClick={handleAdd}
+          disabled={!newKey.trim()}
+        >
           Add
         </Button>
       </Box>

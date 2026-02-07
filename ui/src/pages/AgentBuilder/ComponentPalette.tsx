@@ -7,7 +7,13 @@ interface Props {
 }
 
 const CATEGORY_ORDER: AgentComponentCategory[] = [
-  'event', 'data-scrapper', 'communication', 'ai', 'action', 'logic', 'custom',
+  'event',
+  'data-scrapper',
+  'communication',
+  'ai',
+  'action',
+  'logic',
+  'custom',
 ];
 
 const CATEGORY_LABELS: Record<AgentComponentCategory, string> = {
@@ -48,7 +54,10 @@ const ComponentPalette = ({ components, onDragStart }: Props) => {
       </Typography>
       {Object.entries(grouped).map(([category, items]) => (
         <Box key={category} sx={{ mb: 1.5 }}>
-          <Typography variant="caption" sx={{ fontWeight: 600, textTransform: 'uppercase', color: 'text.secondary' }}>
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 600, textTransform: 'uppercase', color: 'text.secondary' }}
+          >
             {CATEGORY_LABELS[category as AgentComponentCategory] || category}
           </Typography>
           <Divider sx={{ my: 0.5 }} />
@@ -57,7 +66,10 @@ const ComponentPalette = ({ components, onDragStart }: Props) => {
               key={comp.id}
               draggable
               onDragStart={(e) => {
-                e.dataTransfer.setData('application/agentComponent', JSON.stringify(comp));
+                e.dataTransfer.setData(
+                  'application/agentComponent',
+                  JSON.stringify(comp)
+                );
                 e.dataTransfer.effectAllowed = 'move';
                 onDragStart(comp);
               }}
@@ -75,19 +87,39 @@ const ComponentPalette = ({ components, onDragStart }: Props) => {
                 '&:active': { cursor: 'grabbing' },
               }}
             >
-              <Box sx={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: comp.color, flexShrink: 0 }} />
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  backgroundColor: comp.color,
+                  flexShrink: 0,
+                }}
+              />
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.2 }} noWrap>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 500, lineHeight: 1.2 }}
+                  noWrap
+                >
                   {comp.name}
                 </Typography>
               </Box>
-              <Chip label={comp.configSchema.length} size="small" sx={{ height: 20, fontSize: 10 }} />
+              <Chip
+                label={comp.configSchema.length}
+                size="small"
+                sx={{ height: 20, fontSize: 10 }}
+              />
             </Box>
           ))}
         </Box>
       ))}
       {Object.keys(grouped).length === 0 && (
-        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ textAlign: 'center', mt: 4 }}
+        >
           No active components. Create some in Agent Components.
         </Typography>
       )}

@@ -26,6 +26,7 @@ export interface IAgentComponent extends Document {
   icon: string;
   color: string;
   configSchema: IConfigField[];
+  defaultCode: string;
   status: 'active' | 'inactive';
   createdAt: Date;
   updatedAt: Date;
@@ -56,13 +57,22 @@ const AgentComponentSchema = new Schema<IAgentComponent>(
     name: { type: String, required: true, unique: true, trim: true },
     category: {
       type: String,
-      enum: ['event', 'data-scrapper', 'communication', 'ai', 'action', 'logic', 'custom'],
+      enum: [
+        'event',
+        'data-scrapper',
+        'communication',
+        'ai',
+        'action',
+        'logic',
+        'custom',
+      ],
       required: true,
     },
     description: { type: String, default: '' },
     icon: { type: String, default: 'Extension' },
     color: { type: String, default: '#1976d2' },
     configSchema: { type: [ConfigFieldSchema], default: [] },
+    defaultCode: { type: String, default: '' },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   },
   { timestamps: true }

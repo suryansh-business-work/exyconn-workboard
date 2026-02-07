@@ -121,4 +121,13 @@ export const getRoleColor = (role: string): string => {
 };
 
 // Re-export types from main types file
-export type { Task, Developer, Project, ParsedTask, TaskStatus, TaskPriority, TaskType, TaskAgent };
+export type {
+  Task,
+  Developer,
+  Project,
+  ParsedTask,
+  TaskStatus,
+  TaskPriority,
+  TaskType,
+  TaskAgent,
+};

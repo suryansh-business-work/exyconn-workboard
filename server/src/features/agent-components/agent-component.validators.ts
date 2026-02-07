@@ -39,6 +39,7 @@ export const createAgentComponentSchema = z.object({
   icon: z.string().optional().default('Extension'),
   color: z.string().optional().default('#1976d2'),
   configSchema: z.array(configFieldSchema).optional().default([]),
+  defaultCode: z.string().optional().default(''),
   status: z.enum(['active', 'inactive']).optional().default('active'),
 });
 

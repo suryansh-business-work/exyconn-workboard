@@ -1,8 +1,15 @@
 import { useCallback, useRef, useMemo } from 'react';
 import { Box } from '@mui/material';
 import {
-  ReactFlow, Background, Controls, MiniMap,
-  Node, Edge, Connection, NodeChange, EdgeChange,
+  ReactFlow,
+  Background,
+  Controls,
+  MiniMap,
+  Node,
+  Edge,
+  Connection,
+  NodeChange,
+  EdgeChange,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import AgentNode from './AgentNode';
@@ -21,8 +28,14 @@ interface Props {
 }
 
 const BuilderCanvas = ({
-  nodes, edges, onNodesChange, onEdgesChange,
-  onConnect, onNodeClick, onPaneClick, onAddNode,
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  onNodeClick,
+  onPaneClick,
+  onAddNode,
 }: Props) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const nodeTypes = useMemo(() => ({ agentNode: AgentNode }), []);
@@ -49,7 +62,12 @@ const BuilderCanvas = ({
   }, []);
 
   return (
-    <Box ref={wrapperRef} sx={{ flex: 1, height: '100%' }} onDrop={onDrop} onDragOver={onDragOver}>
+    <Box
+      ref={wrapperRef}
+      sx={{ flex: 1, height: '100%' }}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}

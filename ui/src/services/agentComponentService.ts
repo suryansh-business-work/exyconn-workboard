@@ -9,6 +9,7 @@ interface RawAgentComponent {
   icon: string;
   color: string;
   configSchema: ConfigField[];
+  defaultCode: string;
   status: 'active' | 'inactive';
   createdAt: string;
   updatedAt: string;
@@ -22,6 +23,7 @@ const transformComponent = (c: RawAgentComponent): AgentComponent => ({
   icon: c.icon,
   color: c.color,
   configSchema: c.configSchema || [],
+  defaultCode: c.defaultCode || '',
   status: c.status,
   createdAt: c.createdAt,
   updatedAt: c.updatedAt,

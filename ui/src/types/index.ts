@@ -235,6 +235,7 @@ export interface AgentComponent {
   icon: string;
   color: string;
   configSchema: ConfigField[];
+  defaultCode: string;
   status: 'active' | 'inactive';
   createdAt: string;
   updatedAt: string;
@@ -247,6 +248,7 @@ export interface CreateAgentComponentPayload {
   icon: string;
   color: string;
   configSchema: ConfigField[];
+  defaultCode: string;
   status: 'active' | 'inactive';
 }
 

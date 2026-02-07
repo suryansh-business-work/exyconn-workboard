@@ -81,10 +81,7 @@ const AgentComponents = () => {
     <Box>
       <PageHeader
         title="Agent Components"
-        breadcrumbs={[
-          { label: 'Agents', path: '/agents' },
-          { label: 'Components' },
-        ]}
+        breadcrumbs={[{ label: 'Agents', path: '/agents' }, { label: 'Components' }]}
         action={
           <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate}>
             Add Component

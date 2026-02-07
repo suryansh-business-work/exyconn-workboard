@@ -27,11 +27,15 @@ const BuilderChatPanel = ({ agentName, nodes, edges }: Props) => {
 
       const config = await settingsService.getOpenAIConfig();
       const apiKey = config?.apiKey;
-      if (!apiKey) return { content: 'OpenAI API key is not configured. Go to Settings to add it.' };
+      if (!apiKey)
+        return { content: 'OpenAI API key is not configured. Go to Settings to add it.' };
 
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
         body: JSON.stringify({
           model: config.openAIModel || 'gpt-4o-mini',
           max_tokens: config.maxTokens || 1000,
@@ -93,7 +97,11 @@ const BuilderChatPanel = ({ agentName, nodes, edges }: Props) => {
           }}
         >
           {messages.length === 0 && (
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ textAlign: 'center', mt: 4 }}
+            >
               Ask about your agent workflow — optimization, debugging, or ideas.
             </Typography>
           )}

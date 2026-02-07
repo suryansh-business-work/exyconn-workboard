@@ -1,6 +1,12 @@
 import { useState, useMemo, createElement } from 'react';
 import {
-  Box, TextField, Typography, Popover, IconButton, Tooltip, InputAdornment,
+  Box,
+  TextField,
+  Typography,
+  Popover,
+  IconButton,
+  Tooltip,
+  InputAdornment,
 } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import * as Icons from '@mui/icons-material';
@@ -57,7 +63,10 @@ const MuiIconPicker = ({ value, onChange }: Props) => {
       <Popover
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
-        onClose={() => { setAnchorEl(null); setSearch(''); }}
+        onClose={() => {
+          setAnchorEl(null);
+          setSearch('');
+        }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         slotProps={{ paper: { sx: { width: 320, maxHeight: 360, p: 1.5 } } }}
       >
@@ -79,14 +88,26 @@ const MuiIconPicker = ({ value, onChange }: Props) => {
             },
           }}
         />
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 260, overflow: 'auto' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 0.5,
+            maxHeight: 260,
+            overflow: 'auto',
+          }}
+        >
           {filtered.map((name) => {
             if (!iconsMap[name]) return null;
             return (
               <Tooltip key={name} title={name}>
                 <IconButton
                   size="small"
-                  onClick={() => { onChange(name); setAnchorEl(null); setSearch(''); }}
+                  onClick={() => {
+                    onChange(name);
+                    setAnchorEl(null);
+                    setSearch('');
+                  }}
                   sx={{
                     border: value === name ? '2px solid' : '1px solid',
                     borderColor: value === name ? 'primary.main' : 'divider',
@@ -101,7 +122,11 @@ const MuiIconPicker = ({ value, onChange }: Props) => {
             );
           })}
           {filtered.length === 0 && (
-            <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center', width: '100%' }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ p: 2, textAlign: 'center', width: '100%' }}
+            >
               No icons found
             </Typography>
           )}

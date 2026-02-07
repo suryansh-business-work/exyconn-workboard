@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -13,12 +14,39 @@ const AgentBuilderInner = () => {
   const { id } = useParams<{ id: string }>();
 
   const {
-    agent, components, nodes, edges, selectedNode, loading, saving, error,
+    agent,
+    components,
+    nodes,
+    edges,
+    selectedNode,
+    loading,
+    saving,
+    error,
     executing,
-    setSelectedNode, onNodesChange, onEdgesChange, onConnect,
-    addNode, updateNodeConfig, deleteNode, save, setError,
-    executeWorkflow, stopExecution,
+    setSelectedNode,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    addNode,
+    updateNodeConfig,
+    deleteNode,
+    save,
+    setError,
+    executeWorkflow,
+    stopExecution,
+    triggerFromNode,
+    lastResults,
   } = useAgentBuilder(id!);
+
+  const nodesWithTrigger = useMemo(
+    () =>
+      nodes.map((n) =>
+        n.data.category === 'event'
+          ? { ...n, data: { ...n.data, onTrigger: triggerFromNode } }
+          : n
+      ),
+    [nodes, triggerFromNode]
+  );
 
   if (loading) {
     return (
@@ -43,7 +71,9 @@ const AgentBuilderInner = () => {
   }));
 
   const workflowEdges = edges.map((e) => ({
-    edgeId: e.id, source: e.source, target: e.target,
+    edgeId: e.id,
+    source: e.source,
+    target: e.target,
   }));
 
   return (
@@ -64,10 +94,12 @@ const AgentBuilderInner = () => {
       )}
       <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <ComponentPalette components={components} onDragStart={() => {}} />
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Box
+          sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+        >
           <Box sx={{ flex: 1, overflow: 'hidden' }}>
             <BuilderCanvas
-              nodes={nodes}
+              nodes={nodesWithTrigger}
               edges={edges}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
@@ -77,7 +109,11 @@ const AgentBuilderInner = () => {
               onAddNode={addNode}
             />
           </Box>
-          <BuilderChatPanel agentName={agent.name} nodes={workflowNodes} edges={workflowEdges} />
+          <BuilderChatPanel
+            agentName={agent.name}
+            nodes={workflowNodes}
+            edges={workflowEdges}
+          />
         </Box>
         {selectedNode && (
           <NodeConfigPanel
@@ -86,6 +122,7 @@ const AgentBuilderInner = () => {
             onUpdateConfig={updateNodeConfig}
             onDelete={deleteNode}
             onClose={() => setSelectedNode(null)}
+            lastResults={lastResults}
           />
         )}
       </Box>

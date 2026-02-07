@@ -11,17 +11,9 @@ const router = Router();
 
 router.get('/', agentController.getAgents);
 
-router.get(
-  '/:id',
-  validate({ params: agentIdParamSchema }),
-  agentController.getAgent
-);
+router.get('/:id', validate({ params: agentIdParamSchema }), agentController.getAgent);
 
-router.post(
-  '/',
-  validate({ body: createAgentSchema }),
-  agentController.createAgent
-);
+router.post('/', validate({ body: createAgentSchema }), agentController.createAgent);
 
 router.put(
   '/:id',

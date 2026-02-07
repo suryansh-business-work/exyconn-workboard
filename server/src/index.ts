@@ -1,11 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { connectDatabase } from './config/database';
-import {
-  createHealthHandler,
-  createRootHandler,
-  HealthConfig,
-} from './utils/health';
+import { createHealthHandler, createRootHandler, HealthConfig } from './utils/health';
 
 import taskRoutes from './features/tasks/task.routes';
 import developerRoutes from './features/developers/developer.routes';

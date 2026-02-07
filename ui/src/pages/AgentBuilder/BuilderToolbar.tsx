@@ -18,8 +18,13 @@ interface Props {
 }
 
 const BuilderToolbar = ({
-  agentName, saving, executing, nodeCount,
-  onSave, onExecute, onStop,
+  agentName,
+  saving,
+  executing,
+  nodeCount,
+  onSave,
+  onExecute,
+  onStop,
 }: Props) => {
   const navigate = useNavigate();
 
@@ -39,7 +44,11 @@ const BuilderToolbar = ({
       <Button size="small" startIcon={<BackIcon />} onClick={() => navigate('/agents')}>
         Back
       </Button>
-      <Typography variant="h6" sx={{ fontWeight: 700, flex: 1, fontSize: { xs: 14, sm: 18 } }} noWrap>
+      <Typography
+        variant="h6"
+        sx={{ fontWeight: 700, flex: 1, fontSize: { xs: 14, sm: 18 } }}
+        noWrap
+      >
         {agentName} — Builder
       </Typography>
       <Chip label={`${nodeCount} nodes`} size="small" variant="outlined" />

@@ -86,7 +86,11 @@ const Agents = () => {
         breadcrumbs={[{ label: 'Agents' }]}
         action={
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button variant="outlined" startIcon={<ComponentIcon />} onClick={() => navigate('/agents/components')}>
+            <Button
+              variant="outlined"
+              startIcon={<ComponentIcon />}
+              onClick={() => navigate('/agents/components')}
+            >
               Components
             </Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate}>

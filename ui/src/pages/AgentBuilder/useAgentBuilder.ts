@@ -14,6 +14,7 @@ export interface AgentNodeData {
   color: string;
   config: Record<string, string>;
   execStatus?: 'running' | 'success' | 'error';
+  onTrigger?: (nodeId: string) => void;
   [key: string]: unknown;
 }
 
@@ -86,7 +87,8 @@ export const useAgentBuilder = (agentId: string) => {
   }, [agentId]);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange<Node<AgentNodeData>>[]) => setNodes((ns) => applyNodeChanges(changes, ns)),
+    (changes: NodeChange<Node<AgentNodeData>>[]) =>
+      setNodes((ns) => applyNodeChanges(changes, ns)),
     []
   );
 
@@ -98,7 +100,10 @@ export const useAgentBuilder = (agentId: string) => {
   const onConnect = useCallback(
     (connection: Connection) =>
       setEdges((es) =>
-        addEdge({ ...connection, animated: true, style: { stroke: '#1976d2', strokeWidth: 2 } }, es)
+        addEdge(
+          { ...connection, animated: true, style: { stroke: '#1976d2', strokeWidth: 2 } },
+          es
+        )
       ),
     []
   );
@@ -106,6 +111,10 @@ export const useAgentBuilder = (agentId: string) => {
   const addNode = useCallback(
     (component: AgentComponent, position: { x: number; y: number }) => {
       const id = `node_${Date.now()}`;
+      const initialConfig: Record<string, string> = {};
+      if (component.defaultCode) {
+        initialConfig._code = component.defaultCode;
+      }
       const newNode: Node<AgentNodeData> = {
         id,
         type: 'agentNode',
@@ -115,7 +124,7 @@ export const useAgentBuilder = (agentId: string) => {
           componentName: component.name,
           category: component.category,
           color: component.color,
-          config: {},
+          config: initialConfig,
         },
       };
       setNodes((ns) => [...ns, newNode]);
@@ -128,7 +137,9 @@ export const useAgentBuilder = (agentId: string) => {
       setNodes((ns) =>
         ns.map((n) => (n.id === nodeId ? { ...n, data: { ...n.data, config } } : n))
       );
-      setSelectedNode((prev) => (prev?.id === nodeId ? { ...prev, data: { ...prev.data, config } } : prev));
+      setSelectedNode((prev) =>
+        prev?.id === nodeId ? { ...prev, data: { ...prev.data, config } } : prev
+      );
     },
     []
   );
@@ -139,9 +150,8 @@ export const useAgentBuilder = (agentId: string) => {
     setSelectedNode(null);
   }, []);
 
-  const { executing, executeWorkflow, stopExecution } = useWorkflowExecution({
-    nodes, edges, setNodes,
-  });
+  const { executing, executeWorkflow, stopExecution, triggerFromNode, lastResults } =
+    useWorkflowExecution({ nodes, edges, setNodes, components });
 
   const save = useCallback(async () => {
     if (!agent) return;
@@ -160,10 +170,27 @@ export const useAgentBuilder = (agentId: string) => {
   }, [agent, nodes, edges]);
 
   return {
-    agent, components, nodes, edges, selectedNode, loading, saving, error,
+    agent,
+    components,
+    nodes,
+    edges,
+    selectedNode,
+    loading,
+    saving,
+    error,
     executing,
-    setSelectedNode, onNodesChange, onEdgesChange, onConnect,
-    addNode, updateNodeConfig, deleteNode, save, setError,
-    executeWorkflow, stopExecution,
+    setSelectedNode,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    addNode,
+    updateNodeConfig,
+    deleteNode,
+    save,
+    setError,
+    executeWorkflow,
+    stopExecution,
+    triggerFromNode,
+    lastResults,
   };
 };
