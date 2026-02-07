@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button, CircularProgress, Box, Alert } from '@mui/material';
-import { Add as AddIcon, Extension as ComponentIcon, MenuBook as DocsIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Extension as ComponentIcon,
+  MenuBook as DocsIcon,
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/PageHeader';
 import DeleteConfirmDialog from '../../components/DeleteConfirmDialog/DeleteConfirmDialog';

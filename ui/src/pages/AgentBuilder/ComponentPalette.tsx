@@ -1,5 +1,13 @@
 import { useState, useMemo } from 'react';
-import { Box, Typography, Paper, Chip, Divider, TextField, InputAdornment } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Paper,
+  Chip,
+  Divider,
+  TextField,
+  InputAdornment,
+} from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { AgentComponent, AgentComponentCategory } from '../../types';
 
@@ -69,7 +77,15 @@ const ComponentPalette = ({ components, onDragStart }: Props) => {
         placeholder="Search..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 14 }} /></InputAdornment> } }}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ fontSize: 14 }} />
+              </InputAdornment>
+            ),
+          },
+        }}
         sx={{ mb: 1, '& .MuiInputBase-root': { fontSize: 11, height: 28 } }}
         fullWidth
       />

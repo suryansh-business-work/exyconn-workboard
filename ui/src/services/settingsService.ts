@@ -1,5 +1,11 @@
 import api from './api';
-import { SMTPConfig, ImageKitConfig, OpenAIConfig, ParsedTask, BuildAgentResponse } from '../types';
+import {
+  SMTPConfig,
+  ImageKitConfig,
+  OpenAIConfig,
+  ParsedTask,
+  BuildAgentResponse,
+} from '../types';
 
 export const settingsService = {
   getSMTPConfig: async (): Promise<SMTPConfig> => {

@@ -140,7 +140,9 @@ const AgentBuilderInner = () => {
             nodes={workflowNodes}
             edges={workflowEdges}
             components={components}
-            onComponentCreated={async () => { await refreshComponents(); }}
+            onComponentCreated={async () => {
+              await refreshComponents();
+            }}
             onBuildWorkflow={buildWorkflow}
           />
         </Box>

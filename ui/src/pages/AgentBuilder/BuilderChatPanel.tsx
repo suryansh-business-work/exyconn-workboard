@@ -73,8 +73,9 @@ const BuilderChatPanel = ({
     [components, nodes]
   );
 
-  const { messages, input, setInput, loading, send, containerRef } =
-    useAIChat<BuildMeta>({ onSendMessage: handleSendMessage });
+  const { messages, input, setInput, loading, send, containerRef } = useAIChat<BuildMeta>(
+    { onSendMessage: handleSendMessage }
+  );
 
   const renderAction = useCallback(
     (msg: { metadata?: BuildMeta }) => {
@@ -95,7 +96,9 @@ const BuilderChatPanel = ({
   );
 
   return (
-    <Box sx={{ borderTop: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+    <Box
+      sx={{ borderTop: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}
+    >
       <Box
         sx={{
           display: 'flex',

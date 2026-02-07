@@ -87,15 +87,16 @@ export const buildAgentSchema = z.object({
       description: z.string(),
     })
   ),
-  currentNodes: z.array(
-    z.object({
-      componentName: z.string(),
-      category: z.string(),
-    })
-  ).optional().default([]),
-  history: z.array(
-    z.object({ role: z.string(), content: z.string() })
-  ).optional(),
+  currentNodes: z
+    .array(
+      z.object({
+        componentName: z.string(),
+        category: z.string(),
+      })
+    )
+    .optional()
+    .default([]),
+  history: z.array(z.object({ role: z.string(), content: z.string() })).optional(),
 });
 
 export type SMTPConfigInput = z.infer<typeof smtpConfigSchema>;

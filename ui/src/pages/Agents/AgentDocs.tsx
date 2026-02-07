@@ -43,7 +43,8 @@ const AgentDocs = () => (
 
       <Section title="1. Context Object">
         <Typography variant="body2" sx={{ mb: 1 }}>
-          Every code node receives a <strong>context</strong> object with these properties:
+          Every code node receives a <strong>context</strong> object with these
+          properties:
         </Typography>
         {codeBlock(`// Available in every code node:
 context.config    // Record<string, string> — node config field values
@@ -55,8 +56,8 @@ context.inputs    // Record<string, unknown> — outputs from parent nodes`)}
 
       <Section title="2. Input / Output Between Nodes">
         <Typography variant="body2" sx={{ mb: 1 }}>
-          Data flows through edges. A node&apos;s <strong>return value</strong> becomes the{' '}
-          <strong>input</strong> for connected downstream nodes.
+          Data flows through edges. A node&apos;s <strong>return value</strong> becomes
+          the <strong>input</strong> for connected downstream nodes.
         </Typography>
         {codeBlock(`// Node A (upstream) — returns data
 const data = { users: ['Alice', 'Bob'] };
@@ -114,9 +115,9 @@ return json;`)}
       <Section title="6. Execution Order">
         <Typography variant="body2">
           Nodes execute in <strong>topological order</strong> — parent nodes always run
-          before their children. If a node has no incoming edges, it runs first (like event
-          triggers). Execution stops at the first error unless you handle errors with
-          try/catch.
+          before their children. If a node has no incoming edges, it runs first (like
+          event triggers). Execution stops at the first error unless you handle errors
+          with try/catch.
         </Typography>
       </Section>
 

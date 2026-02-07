@@ -48,7 +48,12 @@ const SidebarContent = ({
         }}
       >
         {!collapsed && (
-          <Typography variant="subtitle1" fontWeight={700} color="primary" sx={{ fontSize: 15 }}>
+          <Typography
+            variant="subtitle1"
+            fontWeight={700}
+            color="primary"
+            sx={{ fontSize: 15 }}
+          >
             Workboard
           </Typography>
         )}

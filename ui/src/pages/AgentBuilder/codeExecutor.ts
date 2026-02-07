@@ -119,7 +119,9 @@ const executeFallback = async (
   const logs: string[] = [];
   const con = {
     log: (...args: unknown[]) =>
-      logs.push(args.map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ')),
+      logs.push(
+        args.map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ')
+      ),
     warn: (...args: unknown[]) => logs.push('[WARN] ' + args.map(String).join(' ')),
     error: (...args: unknown[]) => logs.push('[ERROR] ' + args.map(String).join(' ')),
     info: (...args: unknown[]) => logs.push('[INFO] ' + args.map(String).join(' ')),

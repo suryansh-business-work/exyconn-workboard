@@ -10,7 +10,13 @@ import {
   EdgeChange,
 } from '@xyflow/react';
 import { agentService, agentComponentService } from '../../services';
-import { Agent, AgentComponent, WorkflowNode, WorkflowEdge, SuggestedWorkflow } from '../../types';
+import {
+  Agent,
+  AgentComponent,
+  WorkflowNode,
+  WorkflowEdge,
+  SuggestedWorkflow,
+} from '../../types';
 import { useWorkflowExecution } from './useWorkflowExecution';
 
 export interface AgentNodeData {

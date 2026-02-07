@@ -419,10 +419,13 @@ export async function buildAgent(req: Request, res: Response): Promise<void> {
       history?: { role: string; content: string }[];
     };
 
-    const compList = components.map((c) => `- ${c.name} [${c.category}]: ${c.description}`).join('\n');
-    const nodeList = currentNodes.length > 0
-      ? currentNodes.map((n) => `- ${n.componentName} (${n.category})`).join('\n')
-      : 'Empty workflow';
+    const compList = components
+      .map((c) => `- ${c.name} [${c.category}]: ${c.description}`)
+      .join('\n');
+    const nodeList =
+      currentNodes.length > 0
+        ? currentNodes.map((n) => `- ${n.componentName} (${n.category})`).join('\n')
+        : 'Empty workflow';
 
     const systemPrompt = `You are an AI agent workflow builder assistant. Help users design agent workflows.
 
@@ -461,10 +464,12 @@ Rules:
       { role: 'system', content: systemPrompt },
     ];
     if (history && Array.isArray(history)) {
-      messages.push(...history.map((h: { role: string; content: string }) => ({
-        role: h.role === 'user' ? 'user' : 'assistant',
-        content: h.content,
-      })));
+      messages.push(
+        ...history.map((h: { role: string; content: string }) => ({
+          role: h.role === 'user' ? 'user' : 'assistant',
+          content: h.content,
+        }))
+      );
     }
     messages.push({ role: 'user', content: message });
 

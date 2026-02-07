@@ -8,7 +8,11 @@ import {
   LinearProgress,
   Alert,
 } from '@mui/material';
-import { Add as AddIcon, AutoFixHigh as BuildIcon, Check as CheckIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  AutoFixHigh as BuildIcon,
+  Check as CheckIcon,
+} from '@mui/icons-material';
 import { settingsService } from '../../services';
 import { agentComponentService } from '../../services';
 import {
@@ -46,7 +50,8 @@ const BuilderChatActions = ({
         const result = await settingsService.generateComponent(mc.suggestedPrompt);
         const payload: CreateAgentComponentPayload = {
           name: (result.name as string) || mc.name,
-          category: (result.category as CreateAgentComponentPayload['category']) || 'custom',
+          category:
+            (result.category as CreateAgentComponentPayload['category']) || 'custom',
           description: (result.description as string) || mc.description,
           icon: 'Build',
           color: (result.color as string) || '#1976d2',
@@ -84,7 +89,10 @@ const BuilderChatActions = ({
       )}
       {missingComponents.length > 0 && (
         <Box sx={{ mb: 1 }}>
-          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}
+          >
             Missing Components:
           </Typography>
           {missingComponents.map((mc) => (
@@ -106,7 +114,11 @@ const BuilderChatActions = ({
                 <Typography variant="caption" sx={{ fontWeight: 600 }} noWrap>
                   {mc.name}
                 </Typography>
-                <Chip label={mc.category} size="small" sx={{ ml: 0.5, height: 16, fontSize: 9 }} />
+                <Chip
+                  label={mc.category}
+                  size="small"
+                  sx={{ ml: 0.5, height: 16, fontSize: 9 }}
+                />
               </Box>
               {created[mc.name] ? (
                 <CheckIcon color="success" sx={{ fontSize: 16 }} />
@@ -114,7 +126,9 @@ const BuilderChatActions = ({
                 <Button
                   size="small"
                   variant="contained"
-                  startIcon={creating[mc.name] ? <CircularProgress size={12} /> : <AddIcon />}
+                  startIcon={
+                    creating[mc.name] ? <CircularProgress size={12} /> : <AddIcon />
+                  }
                   onClick={() => handleCreateComponent(mc)}
                   disabled={creating[mc.name]}
                   sx={{ fontSize: 10, py: 0, px: 1, minWidth: 0 }}
@@ -140,7 +154,7 @@ const BuilderChatActions = ({
           {building ? 'Building...' : `Build Workflow (${workflow.nodes.length} nodes)`}
         </Button>
       )}
-      {(creating && Object.values(creating).some(Boolean)) && (
+      {creating && Object.values(creating).some(Boolean) && (
         <LinearProgress sx={{ mt: 0.5, borderRadius: 1 }} />
       )}
     </Box>

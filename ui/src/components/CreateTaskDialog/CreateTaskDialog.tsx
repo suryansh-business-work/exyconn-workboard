@@ -58,61 +58,64 @@ const CreateTaskDialog = ({ open, onClose, task }: CreateTaskDialogProps) => {
             <CircularProgress />
           </Box>
         ) : (
-        <Grid container spacing={2}>
-          <TaskFormFields
-            title={formData.title}
-            description={formData.description}
-            assignee={formData.assignee}
-            status={formData.status}
-            priority={formData.priority}
-            dueDate={dueDate}
-            developers={developers}
-            onTitleChange={(v) => setFormData({ ...formData, title: v })}
-            onDescriptionChange={(v) => setFormData({ ...formData, description: v })}
-            onAssigneeChange={(v) => setFormData({ ...formData, assignee: v })}
-            onStatusChange={(v) => setFormData({ ...formData, status: v })}
-            onPriorityChange={(v) => setFormData({ ...formData, priority: v })}
-            onDueDateChange={setDueDate}
-          />
-          <Grid item xs={12}>
-            <LabelSelector
-              labels={formData.labels}
-              labelInput={labelInput}
-              onLabelInputChange={setLabelInput}
-              onAddLabel={() => {
-                if (labelInput && !formData.labels.includes(labelInput)) {
-                  setFormData({ ...formData, labels: [...formData.labels, labelInput] });
-                  setLabelInput('');
+          <Grid container spacing={2}>
+            <TaskFormFields
+              title={formData.title}
+              description={formData.description}
+              assignee={formData.assignee}
+              status={formData.status}
+              priority={formData.priority}
+              dueDate={dueDate}
+              developers={developers}
+              onTitleChange={(v) => setFormData({ ...formData, title: v })}
+              onDescriptionChange={(v) => setFormData({ ...formData, description: v })}
+              onAssigneeChange={(v) => setFormData({ ...formData, assignee: v })}
+              onStatusChange={(v) => setFormData({ ...formData, status: v })}
+              onPriorityChange={(v) => setFormData({ ...formData, priority: v })}
+              onDueDateChange={setDueDate}
+            />
+            <Grid item xs={12}>
+              <LabelSelector
+                labels={formData.labels}
+                labelInput={labelInput}
+                onLabelInputChange={setLabelInput}
+                onAddLabel={() => {
+                  if (labelInput && !formData.labels.includes(labelInput)) {
+                    setFormData({
+                      ...formData,
+                      labels: [...formData.labels, labelInput],
+                    });
+                    setLabelInput('');
+                  }
+                }}
+                onToggleLabel={toggleLabel}
+                onRemoveLabel={(l) =>
+                  setFormData({
+                    ...formData,
+                    labels: formData.labels.filter((x) => x !== l),
+                  })
                 }
-              }}
-              onToggleLabel={toggleLabel}
-              onRemoveLabel={(l) =>
-                setFormData({
-                  ...formData,
-                  labels: formData.labels.filter((x) => x !== l),
-                })
-              }
-            />
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <ImageUploader
+                images={formData.images}
+                uploading={uploading}
+                onUpload={handleImageUpload}
+                onRemove={(i) => {
+                  const imgs = [...formData.images];
+                  imgs.splice(i, 1);
+                  setFormData({ ...formData, images: imgs });
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TaskAgentSelector
+                selectedAgents={formData.agents}
+                onChange={(agents) => setFormData({ ...formData, agents })}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <ImageUploader
-              images={formData.images}
-              uploading={uploading}
-              onUpload={handleImageUpload}
-              onRemove={(i) => {
-                const imgs = [...formData.images];
-                imgs.splice(i, 1);
-                setFormData({ ...formData, images: imgs });
-              }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TaskAgentSelector
-              selectedAgents={formData.agents}
-              onChange={(agents) => setFormData({ ...formData, agents })}
-            />
-          </Grid>
-        </Grid>
         )}
       </DialogContent>
       <DialogActions>

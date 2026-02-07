@@ -129,18 +129,38 @@ const AgentComponents = () => {
                 <ArrowDropDownIcon />
               </Button>
             </ButtonGroup>
-            <Popper open={menuOpen} anchorEl={anchorRef.current} transition disablePortal sx={{ zIndex: 1 }}>
+            <Popper
+              open={menuOpen}
+              anchorEl={anchorRef.current}
+              transition
+              disablePortal
+              sx={{ zIndex: 1 }}
+            >
               {({ TransitionProps }) => (
                 <Grow {...TransitionProps}>
                   <Paper elevation={4}>
                     <ClickAwayListener onClickAway={() => setMenuOpen(false)}>
                       <MenuList>
-                        <MenuItem onClick={() => { handleCreate(); setMenuOpen(false); }}>
-                          <ListItemIcon><AddIcon fontSize="small" /></ListItemIcon>
+                        <MenuItem
+                          onClick={() => {
+                            handleCreate();
+                            setMenuOpen(false);
+                          }}
+                        >
+                          <ListItemIcon>
+                            <AddIcon fontSize="small" />
+                          </ListItemIcon>
                           <ListItemText>Manual Create</ListItemText>
                         </MenuItem>
-                        <MenuItem onClick={() => { setAiDialogOpen(true); setMenuOpen(false); }}>
-                          <ListItemIcon><AIIcon fontSize="small" /></ListItemIcon>
+                        <MenuItem
+                          onClick={() => {
+                            setAiDialogOpen(true);
+                            setMenuOpen(false);
+                          }}
+                        >
+                          <ListItemIcon>
+                            <AIIcon fontSize="small" />
+                          </ListItemIcon>
                           <ListItemText>AI Generate</ListItemText>
                         </MenuItem>
                       </MenuList>
@@ -162,7 +182,15 @@ const AgentComponents = () => {
         placeholder="Search components..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          },
+        }}
         sx={{ mb: 2, maxWidth: 320 }}
       />
       <AgentComponentsTable

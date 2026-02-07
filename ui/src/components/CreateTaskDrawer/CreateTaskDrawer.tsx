@@ -1,4 +1,11 @@
-import { Drawer, Box, Typography, IconButton, Button, CircularProgress } from '@mui/material';
+import {
+  Drawer,
+  Box,
+  Typography,
+  IconButton,
+  Button,
+  CircularProgress,
+} from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { Formik, Form } from 'formik';
 import TaskAIChatSection from './TaskAIChatSection';
@@ -68,46 +75,53 @@ const CreateTaskDrawer = ({ open, onClose, task }: CreateTaskDrawerProps) => {
           </Box>
 
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flex: 1,
+              }}
+            >
               <CircularProgress />
             </Box>
           ) : (
-          <Formik
-            key={task?.id || 'new'}
-            innerRef={formikRef}
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-            enableReinitialize
-          >
-            {({ errors, touched, values, setFieldValue, isSubmitting }) => (
-              <Form className="create-task-drawer__form">
-                <TaskFormFields
-                  values={values}
-                  errors={errors as Record<string, string>}
-                  touched={touched as Record<string, boolean>}
-                  setFieldValue={setFieldValue}
-                  developers={developers}
-                  projects={projects}
-                  rewriting={rewriting}
-                  onRewriteDescription={() =>
-                    handleRewriteDescription(
-                      values.description,
-                      values.title,
-                      setFieldValue
-                    )
-                  }
-                />
+            <Formik
+              key={task?.id || 'new'}
+              innerRef={formikRef}
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+              enableReinitialize
+            >
+              {({ errors, touched, values, setFieldValue, isSubmitting }) => (
+                <Form className="create-task-drawer__form">
+                  <TaskFormFields
+                    values={values}
+                    errors={errors as Record<string, string>}
+                    touched={touched as Record<string, boolean>}
+                    setFieldValue={setFieldValue}
+                    developers={developers}
+                    projects={projects}
+                    rewriting={rewriting}
+                    onRewriteDescription={() =>
+                      handleRewriteDescription(
+                        values.description,
+                        values.title,
+                        setFieldValue
+                      )
+                    }
+                  />
 
-                <Box className="create-task-drawer__actions">
-                  <Button onClick={() => onClose()}>Cancel</Button>
-                  <Button type="submit" variant="contained" disabled={isSubmitting}>
-                    {isSubmitting ? 'Saving...' : task ? 'Update' : 'Create'}
-                  </Button>
-                </Box>
-              </Form>
-            )}
-          </Formik>
+                  <Box className="create-task-drawer__actions">
+                    <Button onClick={() => onClose()}>Cancel</Button>
+                    <Button type="submit" variant="contained" disabled={isSubmitting}>
+                      {isSubmitting ? 'Saving...' : task ? 'Update' : 'Create'}
+                    </Button>
+                  </Box>
+                </Form>
+              )}
+            </Formik>
           )}
         </Box>
       </Box>
