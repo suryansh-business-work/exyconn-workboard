@@ -10,6 +10,7 @@ import {
   Connection,
   NodeChange,
   EdgeChange,
+  useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import AgentNode from './AgentNode';
@@ -39,6 +40,7 @@ const BuilderCanvas = ({
 }: Props) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const nodeTypes = useMemo(() => ({ agentNode: AgentNode }), []);
+  const { screenToFlowPosition } = useReactFlow();
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
@@ -46,14 +48,16 @@ const BuilderCanvas = ({
       const raw = event.dataTransfer.getData('application/agentComponent');
       if (!raw) return;
       const component: AgentComponent = JSON.parse(raw);
-      const bounds = wrapperRef.current?.getBoundingClientRect();
-      if (!bounds) return;
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
       onAddNode(component, {
-        x: event.clientX - bounds.left - 90,
-        y: event.clientY - bounds.top - 30,
+        x: position.x - 90,
+        y: position.y - 30,
       });
     },
-    [onAddNode]
+    [onAddNode, screenToFlowPosition]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {

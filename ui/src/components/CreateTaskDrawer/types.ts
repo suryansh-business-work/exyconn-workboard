@@ -8,6 +8,7 @@ import {
   TaskPriority,
   TaskType,
   TaskAgent,
+  Agent,
 } from '../../types';
 
 // ============ Props Interfaces ============
@@ -24,6 +25,7 @@ export interface TaskFormFieldsProps {
   touched: Record<string, boolean>;
   setFieldValue: (field: string, value: unknown) => void;
   developers: Developer[];
+  agents: Agent[];
   projects: Project[];
   rewriting: boolean;
   onRewriteDescription: () => void;

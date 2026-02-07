@@ -82,7 +82,16 @@ const SidebarContent = ({
                 >
                   {item.icon}
                 </ListItemIcon>
-                {!collapsed && <ListItemText primary={item.text} />}
+                {!collapsed && (
+                  <ListItemText
+                    primary={item.text}
+                    slotProps={{
+                      primary: {
+                        fontSize: '14px',
+                      },
+                    }}
+                  />
+                )}
               </ListItemButton>
             </Tooltip>
           </ListItem>

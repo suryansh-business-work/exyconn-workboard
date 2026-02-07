@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -29,18 +29,43 @@ interface Props {
   components: AgentComponent[];
   onComponentCreated: (comp: AgentComponent) => void;
   onBuildWorkflow: (workflow: SuggestedWorkflow) => void;
+  onAllComponentsCreated?: () => void;
 }
 
 const BuilderChatActions = ({
   missingComponents,
   workflow,
+  components,
   onComponentCreated,
   onBuildWorkflow,
+  onAllComponentsCreated,
 }: Props) => {
   const [creating, setCreating] = useState<Record<string, boolean>>({});
   const [created, setCreated] = useState<Record<string, boolean>>({});
   const [building, setBuilding] = useState(false);
   const [error, setError] = useState('');
+
+  // Auto-mark components that already exist in the components list
+  const componentNames = useMemo(
+    () => new Set(components.map((c) => c.name.toLowerCase())),
+    [components]
+  );
+  const effectiveCreated = useMemo(() => {
+    const result: Record<string, boolean> = { ...created };
+    missingComponents.forEach((mc) => {
+      if (componentNames.has(mc.name.toLowerCase())) result[mc.name] = true;
+    });
+    return result;
+  }, [created, missingComponents, componentNames]);
+
+  // Notify parent when all missing components are created
+  const allCreated =
+    missingComponents.length > 0 &&
+    missingComponents.every((mc) => effectiveCreated[mc.name]);
+
+  useEffect(() => {
+    if (allCreated && onAllComponentsCreated) onAllComponentsCreated();
+  }, [allCreated, onAllComponentsCreated]);
 
   const handleCreateComponent = useCallback(
     async (mc: MissingComponent) => {
@@ -106,8 +131,8 @@ const BuilderChatActions = ({
                 mb: 0.5,
                 borderRadius: 1,
                 border: '1px solid',
-                borderColor: created[mc.name] ? 'success.light' : 'divider',
-                bgcolor: created[mc.name] ? 'success.50' : 'background.default',
+                borderColor: effectiveCreated[mc.name] ? 'success.light' : 'divider',
+                bgcolor: effectiveCreated[mc.name] ? 'success.50' : 'background.default',
               }}
             >
               <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -120,7 +145,7 @@ const BuilderChatActions = ({
                   sx={{ ml: 0.5, height: 16, fontSize: 9 }}
                 />
               </Box>
-              {created[mc.name] ? (
+              {effectiveCreated[mc.name] ? (
                 <CheckIcon color="success" sx={{ fontSize: 16 }} />
               ) : (
                 <Button

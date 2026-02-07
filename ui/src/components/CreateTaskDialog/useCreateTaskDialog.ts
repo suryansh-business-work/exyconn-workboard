@@ -1,7 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { Task, CreateTaskPayload, Developer } from '../../types';
-import { taskService, developerService, uploadService } from '../../services';
+import { Task, CreateTaskPayload, Developer, Agent } from '../../types';
+import {
+  taskService,
+  developerService,
+  uploadService,
+  agentService,
+} from '../../services';
 
 const initialFormData = (): CreateTaskPayload => ({
   title: '',
@@ -24,6 +29,7 @@ export const useCreateTaskDialog = (
 ) => {
   const [formData, setFormData] = useState<CreateTaskPayload>(initialFormData());
   const [developers, setDevelopers] = useState<Developer[]>([]);
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [labelInput, setLabelInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -33,9 +39,11 @@ export const useCreateTaskDialog = (
   useEffect(() => {
     if (open) {
       setLoadingData(true);
-      developerService
-        .getAll()
-        .then(setDevelopers)
+      Promise.all([developerService.getAll(), agentService.getAll()])
+        .then(([devs, agts]) => {
+          setDevelopers(devs);
+          setAgents(agts.filter((a) => a.status === 'active'));
+        })
         .catch(console.error)
         .finally(() => setLoadingData(false));
       if (task) {
@@ -115,6 +123,7 @@ export const useCreateTaskDialog = (
     formData,
     setFormData,
     developers,
+    agents,
     labelInput,
     setLabelInput,
     saving,
