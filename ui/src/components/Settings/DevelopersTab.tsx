@@ -139,9 +139,11 @@ const DevelopersTab = () => {
     { setSubmitting }: { setSubmitting: (v: boolean) => void }
   ) => {
     try {
-      selectedDeveloper
-        ? await developerService.update(selectedDeveloper.id, values)
-        : await developerService.create(values);
+      if (selectedDeveloper) {
+        await developerService.update(selectedDeveloper.id, values);
+      } else {
+        await developerService.create(values);
+      }
       setDrawerOpen(false);
       setSelectedDeveloper(null);
       fetchDevelopers();

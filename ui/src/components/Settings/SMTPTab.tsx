@@ -75,9 +75,11 @@ const SMTPTab = () => {
     setSuccess(null);
     try {
       const result = await settingsService.testSMTPConfig(testEmail);
-      result.success
-        ? setSuccess('Test email sent successfully!')
-        : setError(result.message);
+      if (result.success) {
+        setSuccess('Test email sent successfully!');
+      } else {
+        setError(result.message);
+      }
     } catch {
       setError('Failed to send test email.');
     } finally {
