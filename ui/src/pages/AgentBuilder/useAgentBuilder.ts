@@ -10,7 +10,7 @@ import {
   EdgeChange,
 } from '@xyflow/react';
 import { agentService, agentComponentService } from '../../services';
-import { Agent, AgentComponent, WorkflowNode, WorkflowEdge } from '../../types';
+import { Agent, AgentComponent, WorkflowNode, WorkflowEdge, SuggestedWorkflow } from '../../types';
 import { useWorkflowExecution } from './useWorkflowExecution';
 
 export interface AgentNodeData {
@@ -156,6 +156,52 @@ export const useAgentBuilder = (agentId: string) => {
     setSelectedNode(null);
   }, []);
 
+  const refreshComponents = useCallback(async () => {
+    const c = await agentComponentService.getAll();
+    setComponents(c.filter((comp) => comp.status === 'active'));
+  }, []);
+
+  const buildWorkflow = useCallback(
+    (suggested: SuggestedWorkflow) => {
+      const nodeIds: string[] = [];
+      const newNodes: Node<AgentNodeData>[] = [];
+      suggested.nodes.forEach((sn, i) => {
+        const comp = components.find(
+          (c) => c.name.toLowerCase() === sn.componentName.toLowerCase()
+        );
+        if (!comp) return;
+        const id = `node_${Date.now()}_${i}`;
+        nodeIds.push(id);
+        const cfg: Record<string, string> = { ...sn.config };
+        if (comp.defaultCode && !cfg._code) cfg._code = comp.defaultCode;
+        newNodes.push({
+          id,
+          type: 'agentNode',
+          position: sn.position,
+          data: {
+            componentId: comp.id,
+            componentName: comp.name,
+            category: comp.category,
+            color: comp.color,
+            config: cfg,
+          },
+        });
+      });
+      setNodes((ns) => [...ns, ...newNodes]);
+      const newEdges: Edge[] = suggested.edges
+        .filter((se) => nodeIds[se.sourceIndex] && nodeIds[se.targetIndex])
+        .map((se) => ({
+          id: `e_${nodeIds[se.sourceIndex]}_${nodeIds[se.targetIndex]}`,
+          source: nodeIds[se.sourceIndex],
+          target: nodeIds[se.targetIndex],
+          animated: true,
+          style: { stroke: '#1976d2', strokeWidth: 2 },
+        }));
+      setEdges((es) => [...es, ...newEdges]);
+    },
+    [components]
+  );
+
   const { executing, executeWorkflow, stopExecution, triggerFromNode, lastResults } =
     useWorkflowExecution({ nodes, edges, setNodes, components });
 
@@ -198,5 +244,7 @@ export const useAgentBuilder = (agentId: string) => {
     stopExecution,
     triggerFromNode,
     lastResults,
+    refreshComponents,
+    buildWorkflow,
   };
 };

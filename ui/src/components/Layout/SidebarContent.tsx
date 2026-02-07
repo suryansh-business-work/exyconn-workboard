@@ -35,8 +35,8 @@ const SidebarContent = ({
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box
         sx={{
-          px: 1.5,
-          py: 1,
+          px: 1,
+          py: 0.5,
           display: 'flex',
           alignItems: 'center',
           justifyContent: collapsed ? 'center' : 'space-between',
@@ -48,7 +48,7 @@ const SidebarContent = ({
         }}
       >
         {!collapsed && (
-          <Typography variant="h6" fontWeight={700} color="primary">
+          <Typography variant="subtitle1" fontWeight={700} color="primary" sx={{ fontSize: 15 }}>
             Workboard
           </Typography>
         )}
@@ -67,7 +67,9 @@ const SidebarContent = ({
                 onClick={() => onNavigate(item.path)}
                 sx={{
                   justifyContent: collapsed ? 'center' : 'flex-start',
-                  px: collapsed ? 1 : 2,
+                  px: collapsed ? 0.75 : 1.5,
+                  py: 0.5,
+                  minHeight: 36,
                 }}
               >
                 <ListItemIcon

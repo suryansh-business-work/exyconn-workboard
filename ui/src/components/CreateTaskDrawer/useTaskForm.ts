@@ -21,6 +21,7 @@ interface UseTaskFormProps {
 export interface UseTaskFormReturn {
   developers: Developer[];
   projects: Project[];
+  loading: boolean;
   formikRef: React.MutableRefObject<FormikProps<FormValues> | null>;
   initialValues: FormValues;
   rewriting: boolean;
@@ -46,6 +47,7 @@ export const useTaskForm = ({
 }: UseTaskFormProps): UseTaskFormReturn => {
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
   const [rewriting, setRewriting] = useState(false);
 
   const formikRef = useRef<FormikProps<FormValues>>(null);
@@ -54,12 +56,14 @@ export const useTaskForm = ({
   // Load developers and projects when drawer opens
   useEffect(() => {
     if (open) {
+      setLoading(true);
       Promise.all([developerService.getAll(), projectService.getAll()])
         .then(([devs, projs]) => {
           setDevelopers(devs);
           setProjects(projs);
         })
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => setLoading(false));
     }
   }, [open]);
 
@@ -177,6 +181,7 @@ export const useTaskForm = ({
   return {
     developers,
     projects,
+    loading,
     formikRef,
     initialValues,
     rewriting,

@@ -404,3 +404,97 @@ Generate realistic, working code. Only return valid JSON, no markdown.`;
     res.status(500).json({ error: 'Failed to generate component' });
   }
 }
+
+export async function buildAgent(req: Request, res: Response): Promise<void> {
+  try {
+    const openaiConfig = await settingsService.getOpenAIConfig();
+    if (!openaiConfig.apiKey) {
+      res.status(400).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
+    const { message, components, currentNodes, history } = req.body as {
+      message: string;
+      components: { id: string; name: string; category: string; description: string }[];
+      currentNodes: { componentName: string; category: string }[];
+      history?: { role: string; content: string }[];
+    };
+
+    const compList = components.map((c) => `- ${c.name} [${c.category}]: ${c.description}`).join('\n');
+    const nodeList = currentNodes.length > 0
+      ? currentNodes.map((n) => `- ${n.componentName} (${n.category})`).join('\n')
+      : 'Empty workflow';
+
+    const systemPrompt = `You are an AI agent workflow builder assistant. Help users design agent workflows.
+
+Available Components:
+${compList || 'No components available yet.'}
+
+Current Workflow Nodes:
+${nodeList}
+
+When the user asks to build an agent:
+1. Check if all needed components exist in the available list
+2. If components are missing, list them in missingComponents with details
+3. If all components exist, provide a workflow with nodes and edges
+
+Return JSON:
+{
+  "message": "HTML response explaining your plan. Use <p>, <strong>, <ul>, <li> tags. Be concise.",
+  "missingComponents": [
+    { "name": "Component Name", "category": "logic|event|ai|action|communication|data-scrapper|custom", "description": "What it does", "suggestedPrompt": "Detailed prompt to generate this component via AI" }
+  ],
+  "workflow": null or {
+    "nodes": [
+      { "componentName": "Existing Component Name", "category": "its category", "position": { "x": 250, "y": 50 }, "config": {} }
+    ],
+    "edges": [{ "sourceIndex": 0, "targetIndex": 1 }]
+  }
+}
+
+Rules:
+- Only include components in workflow.nodes that exist in the available list (exact name match)
+- Position nodes in a nice vertical layout, 200px apart vertically
+- Keep messages short and helpful. Use HTML formatting.
+- If user asks general questions (not building), just answer in message field with empty missingComponents and null workflow`;
+
+    const messages: Array<{ role: string; content: string }> = [
+      { role: 'system', content: systemPrompt },
+    ];
+    if (history && Array.isArray(history)) {
+      messages.push(...history.map((h: { role: string; content: string }) => ({
+        role: h.role === 'user' ? 'user' : 'assistant',
+        content: h.content,
+      })));
+    }
+    messages.push({ role: 'user', content: message });
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${openaiConfig.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: openaiConfig.openAIModel || 'gpt-4o-mini',
+        max_tokens: openaiConfig.maxTokens || 2000,
+        messages,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = (await response.json()) as { error?: { message?: string } };
+      res.status(500).json({ error: errorData.error?.message || 'OpenAI API error' });
+      return;
+    }
+
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const parsed = JSON.parse(data.choices[0].message.content);
+    res.json(parsed);
+  } catch (error) {
+    console.error('Build agent error:', error);
+    res.status(500).json({ error: 'Failed to build agent' });
+  }
+}

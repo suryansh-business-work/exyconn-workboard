@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button, CircularProgress, Box, Alert } from '@mui/material';
-import { Add as AddIcon, Extension as ComponentIcon } from '@mui/icons-material';
+import { Add as AddIcon, Extension as ComponentIcon, MenuBook as DocsIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/PageHeader';
 import DeleteConfirmDialog from '../../components/DeleteConfirmDialog/DeleteConfirmDialog';
@@ -86,6 +86,13 @@ const Agents = () => {
         breadcrumbs={[{ label: 'Agents' }]}
         action={
           <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant="outlined"
+              startIcon={<DocsIcon />}
+              onClick={() => navigate('/agents/docs')}
+            >
+              Docs
+            </Button>
             <Button
               variant="outlined"
               startIcon={<ComponentIcon />}

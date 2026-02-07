@@ -11,6 +11,7 @@ import {
   rewriteTextSchema,
   generateCodeSchema,
   generateComponentSchema,
+  buildAgentSchema,
 } from './settings.validators';
 
 const router = Router();
@@ -68,6 +69,11 @@ router.post(
   '/openai/generate-component',
   validate({ body: generateComponentSchema }),
   settingsController.generateComponent
+);
+router.post(
+  '/openai/build-agent',
+  validate({ body: buildAgentSchema }),
+  settingsController.buildAgent
 );
 
 // Daily Report

@@ -1,7 +1,10 @@
 /**
- * Secure JavaScript code executor using Web Workers.
- * Code runs in an isolated Worker thread with timeout protection.
- * User code is sent via postMessage, never injected into template strings.
+ * Code executor with Node.js-like support.
+ * Runs in a module Web Worker with:
+ *  - async/await support
+ *  - require() shim that loads packages from esm.sh CDN
+ *  - import statement rewriting
+ *  - fetch, setTimeout, etc.
  */
 
 export interface ExecutionContext {
@@ -18,14 +21,65 @@ export interface ExecutionResult {
   error?: string;
   logs: string[];
   duration: number;
+  detectedPackages?: string[];
 }
 
-const EXECUTION_TIMEOUT = 10_000;
+const EXECUTION_TIMEOUT = 30_000;
 
-// Worker bootstrap script — receives code and context via postMessage
+/**
+ * Detect require('x') and import ... from 'x' in user code,
+ * return unique package names.
+ */
+export const detectPackages = (code: string): string[] => {
+  const pkgs = new Set<string>();
+  // require('pkg') or require("pkg")
+  const reqRe = /require\s*\(\s*['"]([^'"./][^'"]*)['"]\s*\)/g;
+  let m: RegExpExecArray | null;
+  while ((m = reqRe.exec(code))) pkgs.add(m[1].split('/')[0]);
+  // import ... from 'pkg'
+  const impRe = /import\s+.*?\s+from\s+['"]([^'"./][^'"]*)['"]/g;
+  while ((m = impRe.exec(code))) pkgs.add(m[1].split('/')[0]);
+  return [...pkgs];
+};
+
+/**
+ * Rewrite import/require statements to async CDN-based require.
+ * - import X from 'pkg' → const X = await require('pkg')
+ * - import { a, b } from 'pkg' → const { a, b } = await require('pkg')
+ * - import * as X from 'pkg' → const X = await require('pkg')
+ * - const X = require('pkg') → const X = await require('pkg')
+ */
+const rewriteImports = (code: string): string =>
+  code
+    .replace(
+      /import\s+(\*\s+as\s+\w+|\{[^}]+\}|\w+)\s+from\s+['"]([^'"]+)['"]\s*;?/g,
+      (_, binding: string, pkg: string) => {
+        const b = binding.replace(/\*\s+as\s+/, '');
+        return `const ${b} = await require('${pkg}');`;
+      }
+    )
+    .replace(
+      /(?:const|let|var)\s+(\{[^}]+\}|\w+)\s*=\s*require\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
+      (_, binding: string, pkg: string) => `const ${binding} = await require('${pkg}')`
+    );
+
+// Module Worker bootstrap — supports async + require from CDN
 const WORKER_BOOTSTRAP = `
   'use strict';
-  self.onmessage = function(e) {
+  const moduleCache = {};
+
+  async function require(name) {
+    if (moduleCache[name]) return moduleCache[name];
+    try {
+      const mod = await import('https://esm.sh/' + name + '?bundle');
+      moduleCache[name] = mod.default !== undefined ? mod.default : mod;
+      return moduleCache[name];
+    } catch(err) {
+      throw new Error('Cannot load module "' + name + '": ' + err.message + '. Package may not exist or is not browser-compatible.');
+    }
+  }
+
+  self.onmessage = async function(e) {
     var code = e.data.code;
     var ctx = e.data.context;
     var logs = [];
@@ -36,14 +90,10 @@ const WORKER_BOOTSTRAP = `
       info: function() { var a=[]; for(var i=0;i<arguments.length;i++){a.push(String(arguments[i]));} logs.push('[INFO] '+a.join(' ')); }
     };
     try {
-      var fn = new Function('context', 'console', '"use strict";\\n' + code);
-      var result = fn(ctx, con);
-      if (result && typeof result.then === 'function') {
-        result.then(function(r) { self.postMessage({ success: true, result: r, logs: logs }); })
-              .catch(function(err) { self.postMessage({ success: false, error: String(err), logs: logs }); });
-      } else {
-        self.postMessage({ success: true, result: result, logs: logs });
-      }
+      var AsyncFn = Object.getPrototypeOf(async function(){}).constructor;
+      var fn = new AsyncFn('context', 'console', 'require', '"use strict";\\n' + code);
+      var result = await fn(ctx, con, require);
+      self.postMessage({ success: true, result: result, logs: logs });
     } catch(err) {
       self.postMessage({ success: false, error: String(err), logs: logs });
     }
@@ -59,36 +109,37 @@ function getWorkerUrl(): string {
   return workerBlobUrl;
 }
 
-/** Fallback executor — runs in main thread via setTimeout (less isolated). */
-const executeFallback = (
+/** Fallback executor — runs in main thread with async require. */
+const executeFallback = async (
   code: string,
   context: ExecutionContext,
   start: number
-): Promise<ExecutionResult> =>
-  new Promise((resolve) => {
-    const elapsed = () => performance.now() - start;
-    const logs: string[] = [];
-    const con = {
-      log: (...args: unknown[]) =>
-        logs.push(
-          args
-            .map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a)))
-            .join(' ')
-        ),
-      warn: (...args: unknown[]) => logs.push('[WARN] ' + args.map(String).join(' ')),
-      error: (...args: unknown[]) => logs.push('[ERROR] ' + args.map(String).join(' ')),
-      info: (...args: unknown[]) => logs.push('[INFO] ' + args.map(String).join(' ')),
-    };
-    setTimeout(() => {
-      try {
-        const fn = new Function('context', 'console', `"use strict";\n${code}`);
-        const result = fn(context, con);
-        resolve({ success: true, result, logs, duration: elapsed() });
-      } catch (err) {
-        resolve({ success: false, error: String(err), logs, duration: elapsed() });
-      }
-    }, 0);
-  });
+): Promise<ExecutionResult> => {
+  const elapsed = () => performance.now() - start;
+  const logs: string[] = [];
+  const con = {
+    log: (...args: unknown[]) =>
+      logs.push(args.map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ')),
+    warn: (...args: unknown[]) => logs.push('[WARN] ' + args.map(String).join(' ')),
+    error: (...args: unknown[]) => logs.push('[ERROR] ' + args.map(String).join(' ')),
+    info: (...args: unknown[]) => logs.push('[INFO] ' + args.map(String).join(' ')),
+  };
+  const moduleCache: Record<string, unknown> = {};
+  const require = async (name: string) => {
+    if (moduleCache[name]) return moduleCache[name];
+    const mod = await import(/* @vite-ignore */ `https://esm.sh/${name}?bundle`);
+    moduleCache[name] = mod.default !== undefined ? mod.default : mod;
+    return moduleCache[name];
+  };
+  try {
+    const AsyncFn = Object.getPrototypeOf(async function () {}).constructor;
+    const fn = new AsyncFn('context', 'console', 'require', `"use strict";\n${code}`);
+    const result = await fn(context, con, require);
+    return { success: true, result, logs, duration: elapsed() };
+  } catch (err) {
+    return { success: false, error: String(err), logs, duration: elapsed() };
+  }
+};
 
 export const executeCode = (
   code: string,
@@ -103,19 +154,22 @@ export const executeCode = (
       return;
     }
 
+    // Rewrite import/require to async CDN form
+    const rewritten = rewriteImports(code);
+    const pkgs = detectPackages(code);
+
     let settled = false;
     const done = (r: ExecutionResult) => {
       if (settled) return;
       settled = true;
-      resolve(r);
+      resolve({ ...r, detectedPackages: pkgs.length > 0 ? pkgs : undefined });
     };
 
     let worker: Worker;
     try {
       worker = new Worker(getWorkerUrl());
     } catch {
-      // Worker creation failed — use fallback
-      executeFallback(code, context, start).then(done);
+      executeFallback(rewritten, context, start).then(done);
       return;
     }
 
@@ -123,7 +177,7 @@ export const executeCode = (
       worker.terminate();
       done({
         success: false,
-        error: 'Execution timed out after 10s',
+        error: 'Execution timed out after 30s',
         logs: [],
         duration: elapsed(),
       });
@@ -153,7 +207,7 @@ export const executeCode = (
     };
 
     try {
-      worker.postMessage({ code, context });
+      worker.postMessage({ code: rewritten, context });
     } catch (err) {
       clearTimeout(timer);
       worker.terminate();

@@ -36,6 +36,8 @@ const AgentBuilderInner = () => {
     stopExecution,
     triggerFromNode,
     lastResults,
+    refreshComponents,
+    buildWorkflow,
   } = useAgentBuilder(id!);
 
   const nodesWithTrigger = useMemo(
@@ -137,6 +139,9 @@ const AgentBuilderInner = () => {
             agentName={agent.name}
             nodes={workflowNodes}
             edges={workflowEdges}
+            components={components}
+            onComponentCreated={async () => { await refreshComponents(); }}
+            onBuildWorkflow={buildWorkflow}
           />
         </Box>
         {selectedNode && (

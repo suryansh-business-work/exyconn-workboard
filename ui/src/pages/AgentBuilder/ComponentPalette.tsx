@@ -1,4 +1,6 @@
-import { Box, Typography, Paper, Chip, Divider } from '@mui/material';
+import { useState, useMemo } from 'react';
+import { Box, Typography, Paper, Chip, Divider, TextField, InputAdornment } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material';
 import { AgentComponent, AgentComponentCategory } from '../../types';
 
 interface Props {
@@ -27,8 +29,18 @@ const CATEGORY_LABELS: Record<AgentComponentCategory, string> = {
 };
 
 const ComponentPalette = ({ components, onDragStart }: Props) => {
+  const [search, setSearch] = useState('');
+
+  const filteredComponents = useMemo(
+    () =>
+      search.trim()
+        ? components.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
+        : components,
+    [components, search]
+  );
+
   const grouped = CATEGORY_ORDER.reduce<Record<string, AgentComponent[]>>((acc, cat) => {
-    const items = components.filter((c) => c.category === cat);
+    const items = filteredComponents.filter((c) => c.category === cat);
     if (items.length > 0) acc[cat] = items;
     return acc;
   }, {});
@@ -52,6 +64,15 @@ const ComponentPalette = ({ components, onDragStart }: Props) => {
       <Typography variant="caption" color="text.secondary" sx={{ mb: 1, fontSize: 10 }}>
         Drag onto canvas
       </Typography>
+      <TextField
+        size="small"
+        placeholder="Search..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 14 }} /></InputAdornment> } }}
+        sx={{ mb: 1, '& .MuiInputBase-root': { fontSize: 11, height: 28 } }}
+        fullWidth
+      />
       {Object.entries(grouped).map(([category, items]) => (
         <Box key={category} sx={{ mb: 1 }}>
           <Typography

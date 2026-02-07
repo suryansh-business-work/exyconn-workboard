@@ -6,8 +6,8 @@ import {
 } from '@mui/icons-material';
 
 export const HEADER_HEIGHT = 55;
-export const DRAWER_WIDTH = 220;
-export const DRAWER_COLLAPSED_WIDTH = 56;
+export const DRAWER_WIDTH = 200;
+export const DRAWER_COLLAPSED_WIDTH = 48;
 
 export const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },

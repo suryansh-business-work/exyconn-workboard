@@ -114,8 +114,9 @@ const NodeConfigPanel = ({
                     ? 'number'
                     : 'text'
               }
-              multiline={field.type === 'textarea'}
-              rows={field.type === 'textarea' ? 3 : undefined}
+              multiline={field.type === 'textarea' || field.type === 'text'}
+              minRows={field.type === 'textarea' ? 3 : 1}
+              maxRows={field.type === 'textarea' ? 8 : 4}
               select={field.type === 'select'}
               required={field.required}
               placeholder={field.placeholder}

@@ -1,4 +1,4 @@
-import { Drawer, Box, Typography, IconButton, Button } from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Button, CircularProgress } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { Formik, Form } from 'formik';
 import TaskAIChatSection from './TaskAIChatSection';
@@ -11,6 +11,7 @@ const CreateTaskDrawer = ({ open, onClose, task }: CreateTaskDrawerProps) => {
   const {
     developers,
     projects,
+    loading,
     formikRef,
     initialValues,
     chatInput,
@@ -66,6 +67,11 @@ const CreateTaskDrawer = ({ open, onClose, task }: CreateTaskDrawerProps) => {
             </IconButton>
           </Box>
 
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
           <Formik
             key={task?.id || 'new'}
             innerRef={formikRef}
@@ -102,6 +108,7 @@ const CreateTaskDrawer = ({ open, onClose, task }: CreateTaskDrawerProps) => {
               </Form>
             )}
           </Formik>
+          )}
         </Box>
       </Box>
     </Drawer>

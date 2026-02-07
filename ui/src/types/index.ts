@@ -322,3 +322,28 @@ export interface CreateAgentPayload {
 export interface UpdateAgentPayload extends Partial<CreateAgentPayload> {
   id: string;
 }
+
+// ============ Build Agent Assistant Types ============
+
+export interface MissingComponent {
+  name: string;
+  category: string;
+  description: string;
+  suggestedPrompt: string;
+}
+
+export interface SuggestedWorkflow {
+  nodes: {
+    componentName: string;
+    category: string;
+    position: { x: number; y: number };
+    config: Record<string, string>;
+  }[];
+  edges: { sourceIndex: number; targetIndex: number }[];
+}
+
+export interface BuildAgentResponse {
+  message: string;
+  missingComponents: MissingComponent[];
+  workflow: SuggestedWorkflow | null;
+}
