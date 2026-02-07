@@ -114,6 +114,7 @@ export const useTaskForm = ({
       labels: task?.labels || [],
       images: task?.images || [],
       links: task?.links || [],
+      agents: task?.agents || [],
     }),
     [task]
   );

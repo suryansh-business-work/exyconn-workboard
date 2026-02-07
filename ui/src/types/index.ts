@@ -1,3 +1,8 @@
+export interface TaskAgent {
+  agentId: string;
+  agentName: string;
+}
+
 export interface Task {
   id: string;
   taskId: string;
@@ -13,6 +18,7 @@ export interface Task {
   dueDate: string;
   images: string[];
   links: { title: string; url: string }[];
+  agents: TaskAgent[];
   createdAt: string;
   updatedAt: string;
 }
@@ -52,6 +58,7 @@ export interface CreateTaskPayload {
   dueDate: string;
   images: string[];
   links: { title: string; url: string }[];
+  agents: TaskAgent[];
 }
 
 export interface UpdateTaskPayload extends Partial<CreateTaskPayload> {
@@ -197,4 +204,95 @@ export interface ParsedTask {
   priority: TaskPriority;
   labels: string[];
   estimatedDueDate: number;
+}
+
+// ============ Agent Component Types ============
+
+export type AgentComponentCategory =
+  | 'event'
+  | 'data-scrapper'
+  | 'communication'
+  | 'ai'
+  | 'action'
+  | 'logic'
+  | 'custom';
+
+export interface ConfigField {
+  key: string;
+  label: string;
+  type: 'text' | 'password' | 'select' | 'number' | 'boolean' | 'textarea';
+  required: boolean;
+  placeholder: string;
+  options: { label: string; value: string }[];
+  defaultValue: string;
+}
+
+export interface AgentComponent {
+  id: string;
+  name: string;
+  category: AgentComponentCategory;
+  description: string;
+  icon: string;
+  color: string;
+  configSchema: ConfigField[];
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAgentComponentPayload {
+  name: string;
+  category: AgentComponentCategory;
+  description: string;
+  icon: string;
+  color: string;
+  configSchema: ConfigField[];
+  status: 'active' | 'inactive';
+}
+
+// ============ Agent Workflow Types ============
+
+export interface WorkflowNode {
+  nodeId: string;
+  componentId: string;
+  componentName: string;
+  category: string;
+  color: string;
+  position: { x: number; y: number };
+  config: Record<string, string>;
+}
+
+export interface WorkflowEdge {
+  edgeId: string;
+  source: string;
+  target: string;
+}
+
+export interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  role: string;
+  status: 'active' | 'inactive' | 'draft';
+  capabilities: string[];
+  configuration: Record<string, unknown>;
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAgentPayload {
+  name: string;
+  description: string;
+  role: string;
+  status: 'active' | 'inactive' | 'draft';
+  capabilities: string[];
+  configuration: Record<string, unknown>;
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+}
+
+export interface UpdateAgentPayload extends Partial<CreateAgentPayload> {
+  id: string;
 }

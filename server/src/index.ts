@@ -5,7 +5,7 @@ import {
   createHealthHandler,
   createRootHandler,
   HealthConfig,
-} from '@exyconn/common/server';
+} from './utils/health';
 
 import taskRoutes from './features/tasks/task.routes';
 import developerRoutes from './features/developers/developer.routes';
@@ -13,6 +13,8 @@ import settingsRoutes from './features/settings/settings.routes';
 import uploadRoutes from './features/upload/upload.routes';
 import projectRoutes from './features/projects/project.routes';
 import userRoutes from './features/users/user.routes';
+import agentRoutes from './features/agents/agent.routes';
+import agentComponentRoutes from './features/agent-components/agent-component.routes';
 import { ensureAdminUser } from './features/users/user.services';
 import { sendPasswordEmail } from './features/email/email.services';
 import { startDailyReportCron } from './cron/dailyReport';
@@ -32,6 +34,8 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/agents', agentRoutes);
+app.use('/api/agent-components', agentComponentRoutes);
 
 // Standardized Health Configuration
 const healthConfig: HealthConfig = {
@@ -60,6 +64,8 @@ app.get(
       developers: '/api/developers',
       projects: '/api/projects',
       users: '/api/users',
+      agents: '/api/agents',
+      agentComponents: '/api/agent-components',
       settings: '/api/settings',
     },
   })

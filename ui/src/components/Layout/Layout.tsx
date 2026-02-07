@@ -27,6 +27,7 @@ import {
   ChevronLeft as CollapseIcon,
   ChevronRight as ExpandIcon,
   Logout as LogoutIcon,
+  SmartToy as AgentIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -40,6 +41,7 @@ interface LayoutProps {
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { text: 'Tasks', icon: <TaskIcon />, path: '/tasks' },
+  { text: 'Agents', icon: <AgentIcon />, path: '/agents' },
   { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
 ];
 

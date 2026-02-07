@@ -19,6 +19,12 @@ export const validationSchema = Yup.object({
       url: Yup.string().url('Invalid URL').required('URL is required'),
     })
   ),
+  agents: Yup.array().of(
+    Yup.object({
+      agentId: Yup.string().required(),
+      agentName: Yup.string().required(),
+    })
+  ),
 });
 
 export default validationSchema;

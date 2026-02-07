@@ -64,6 +64,7 @@ export async function updateTask(
     'priority',
     'dueDate',
     'labels',
+    'agents',
   ];
   const oldTaskObj = oldTask.toObject();
   for (const field of fieldsToTrack) {

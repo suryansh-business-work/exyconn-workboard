@@ -32,6 +32,15 @@ export const createTaskSchema = z.object({
     )
     .optional()
     .default([]),
+  agents: z
+    .array(
+      z.object({
+        agentId: z.string().min(1, 'Agent ID is required'),
+        agentName: z.string().min(1, 'Agent name is required'),
+      })
+    )
+    .optional()
+    .default([]),
 });
 
 export const updateTaskSchema = createTaskSchema.partial();

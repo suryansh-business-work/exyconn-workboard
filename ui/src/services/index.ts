@@ -3,3 +3,5 @@ export { developerService } from './developerService';
 export { settingsService } from './settingsService';
 export { uploadService } from './uploadService';
 export { projectService } from './projectService';
+export { agentService } from './agentService';
+export { agentComponentService } from './agentComponentService';

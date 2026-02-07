@@ -22,6 +22,11 @@ export interface IHistoryEntry {
   createdAt: Date;
 }
 
+export interface ITaskAgent {
+  agentId: string;
+  agentName: string;
+}
+
 export interface ITask extends Document {
   taskId: string;
   title: string;
@@ -36,6 +41,7 @@ export interface ITask extends Document {
   dueDate: Date;
   images: string[];
   links: { title: string; url: string }[];
+  agents: ITaskAgent[];
   comments: IComment[];
   history: IHistoryEntry[];
   createdAt: Date;
@@ -94,6 +100,15 @@ const TaskSchema = new Schema<ITask>(
         {
           title: { type: String, required: true },
           url: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
+    agents: {
+      type: [
+        {
+          agentId: { type: String, required: true },
+          agentName: { type: String, required: true },
         },
       ],
       default: [],

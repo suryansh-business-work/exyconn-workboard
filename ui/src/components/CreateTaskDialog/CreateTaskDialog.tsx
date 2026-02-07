@@ -15,6 +15,7 @@ import { taskService, developerService, uploadService } from '../../services';
 import TaskFormFields from './TaskFormFields';
 import LabelSelector from './LabelSelector';
 import ImageUploader from './ImageUploader';
+import TaskAgentSelector from '../TaskAgentSelector/TaskAgentSelector';
 import './CreateTaskDialog.scss';
 
 interface CreateTaskDialogProps {
@@ -34,6 +35,7 @@ const initialFormData = (): CreateTaskPayload => ({
   dueDate: dayjs().add(7, 'day').toISOString(),
   images: [],
   links: [],
+  agents: [],
 });
 
 const CreateTaskDialog = ({ open, onClose, task }: CreateTaskDialogProps) => {
@@ -59,6 +61,7 @@ const CreateTaskDialog = ({ open, onClose, task }: CreateTaskDialogProps) => {
           dueDate: task.dueDate,
           images: task.images || [],
           links: task.links || [],
+          agents: task.agents || [],
         });
         setDueDate(dayjs(task.dueDate));
       } else {
@@ -174,6 +177,12 @@ const CreateTaskDialog = ({ open, onClose, task }: CreateTaskDialogProps) => {
                 imgs.splice(i, 1);
                 setFormData({ ...formData, images: imgs });
               }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TaskAgentSelector
+              selectedAgents={formData.agents}
+              onChange={(agents) => setFormData({ ...formData, agents })}
             />
           </Grid>
         </Grid>

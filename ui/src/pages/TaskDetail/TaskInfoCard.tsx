@@ -1,4 +1,5 @@
 import { Box, Paper, Typography, Chip } from '@mui/material';
+import { SmartToy as AgentIcon } from '@mui/icons-material';
 import { Task } from '../../types';
 
 interface TaskInfoCardProps {
@@ -36,6 +37,23 @@ const TaskInfoCard = ({ task }: TaskInfoCardProps) => {
           <Box className="task-detail__labels">
             {task.labels.map((label, index) => (
               <Chip key={index} label={label} size="small" />
+            ))}
+          </Box>
+        </Box>
+      )}
+      {task.agents && task.agents.length > 0 && (
+        <Box className="task-detail__info-item">
+          <Typography variant="caption">Assigned Agents</Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+            {task.agents.map((agent) => (
+              <Chip
+                key={agent.agentId}
+                icon={<AgentIcon />}
+                label={agent.agentName}
+                size="small"
+                color="primary"
+                variant="outlined"
+              />
             ))}
           </Box>
         </Box>

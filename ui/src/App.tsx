@@ -4,6 +4,9 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import TaskList from './pages/TaskList/TaskList';
 import TaskDetail from './pages/TaskDetail/TaskDetail';
 import Settings from './pages/Settings/Settings';
+import Agents from './pages/Agents/Agents';
+import AgentComponents from './pages/AgentComponents/AgentComponents';
+import AgentBuilder from './pages/AgentBuilder/AgentBuilder';
 import LoginPage from './pages/LoginPage/LoginPage';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
@@ -25,6 +28,9 @@ function App() {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/tasks" element={<TaskList />} />
                   <Route path="/tasks/:id" element={<TaskDetail />} />
+                  <Route path="/agents" element={<Agents />} />
+                  <Route path="/agents/components" element={<AgentComponents />} />
+                  <Route path="/agents/:id/builder" element={<AgentBuilder />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
