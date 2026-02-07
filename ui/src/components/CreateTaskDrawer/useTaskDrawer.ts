@@ -29,6 +29,7 @@ export const useTaskDrawer = ({ open, task, onClose }: UseTaskDrawerProps) => {
   const {
     developers,
     projects,
+    loading,
     formikRef,
     initialValues,
     rewriting,
@@ -55,6 +56,7 @@ export const useTaskDrawer = ({ open, task, onClose }: UseTaskDrawerProps) => {
     // Data
     developers,
     projects,
+    loading,
     formikRef,
     initialValues,
 

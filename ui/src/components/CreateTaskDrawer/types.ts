@@ -7,6 +7,7 @@ import {
   TaskStatus,
   TaskPriority,
   TaskType,
+  TaskAgent,
 } from '../../types';
 
 // ============ Props Interfaces ============
@@ -58,6 +59,7 @@ export interface FormValues {
   labels: string[];
   images: string[];
   links: { title: string; url: string }[];
+  agents: TaskAgent[];
 }
 
 export interface ChatMessage {
@@ -119,4 +121,13 @@ export const getRoleColor = (role: string): string => {
 };
 
 // Re-export types from main types file
-export type { Task, Developer, Project, ParsedTask, TaskStatus, TaskPriority, TaskType };
+export type {
+  Task,
+  Developer,
+  Project,
+  ParsedTask,
+  TaskStatus,
+  TaskPriority,
+  TaskType,
+  TaskAgent,
+};

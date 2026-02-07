@@ -7,6 +7,7 @@ import LinksSection from '../LinksSection';
 import TaskLabelsField from './TaskLabelsField';
 import TaskBasicFields from './TaskBasicFields';
 import TaskStatusSelects from './TaskStatusSelects';
+import TaskAgentSelector from '../TaskAgentSelector/TaskAgentSelector';
 import { TaskFormFieldsProps } from './types';
 
 const TaskFormFields = ({
@@ -112,6 +113,12 @@ const TaskFormFields = ({
         links={values.links}
         onChange={(links) => setFieldValue('links', links)}
         htmlContent={values.description}
+      />
+
+      {/* Agents */}
+      <TaskAgentSelector
+        selectedAgents={values.agents || []}
+        onChange={(agents) => setFieldValue('agents', agents)}
       />
     </>
   );

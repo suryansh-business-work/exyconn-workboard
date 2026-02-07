@@ -1,7 +1,13 @@
 import { Task, ITask, IComment } from './task.models';
-import { CreateTaskInput, UpdateTaskInput, CommentInput } from './task.validators';
+import {
+  CreateTaskInput,
+  UpdateTaskInput,
+  CommentInput,
+  AgentExecutionInput,
+} from './task.validators';
 import { Counter, OpenAIConfig } from '../settings/settings.models';
 import { TaskHistory } from './task-history.models';
+import { AgentExecution, IAgentExecution } from './agent-execution.models';
 import { sendTaskNotification } from '../email/email.services';
 
 export async function getNextTaskId(): Promise<string> {
@@ -64,6 +70,7 @@ export async function updateTask(
     'priority',
     'dueDate',
     'labels',
+    'agents',
   ];
   const oldTaskObj = oldTask.toObject();
   for (const field of fieldsToTrack) {
@@ -235,4 +242,23 @@ export async function deleteComment(taskId: string, commentId: string): Promise<
   await task.save();
 
   return true;
+}
+
+// Agent execution log functions
+export async function createAgentExecution(
+  taskId: string,
+  data: AgentExecutionInput
+): Promise<IAgentExecution> {
+  const log = new AgentExecution({
+    taskId,
+    ...data,
+    startedAt: new Date(),
+    completedAt: data.status !== 'running' ? new Date() : undefined,
+  });
+  await log.save();
+  return log;
+}
+
+export async function getAgentExecutions(taskId: string): Promise<IAgentExecution[]> {
+  return AgentExecution.find({ taskId }).sort({ startedAt: -1 }).limit(50);
 }

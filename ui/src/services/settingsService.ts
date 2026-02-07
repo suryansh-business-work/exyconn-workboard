@@ -1,5 +1,11 @@
 import api from './api';
-import { SMTPConfig, ImageKitConfig, OpenAIConfig, ParsedTask } from '../types';
+import {
+  SMTPConfig,
+  ImageKitConfig,
+  OpenAIConfig,
+  ParsedTask,
+  BuildAgentResponse,
+} from '../types';
 
 export const settingsService = {
   getSMTPConfig: async (): Promise<SMTPConfig> => {
@@ -96,6 +102,31 @@ export const settingsService = {
 
   sendStatusToAllResources: async (): Promise<{ sentCount: number }> => {
     const response = await api.post('/settings/daily-report/send-to-all');
+    return response.data;
+  },
+
+  generateCode: async (
+    prompt: string,
+    currentCode: string
+  ): Promise<{ code: string }> => {
+    const response = await api.post('/settings/openai/generate-code', {
+      prompt,
+      currentCode,
+    });
+    return response.data;
+  },
+
+  generateComponent: async (prompt: string): Promise<Record<string, unknown>> => {
+    const response = await api.post('/settings/openai/generate-component', { prompt });
+    return response.data;
+  },
+  buildAgent: async (params: {
+    message: string;
+    components: { id: string; name: string; category: string; description: string }[];
+    currentNodes?: { componentName: string; category: string }[];
+    history?: { role: string; content: string }[];
+  }): Promise<BuildAgentResponse> => {
+    const response = await api.post('/settings/openai/build-agent', params);
     return response.data;
   },
 };

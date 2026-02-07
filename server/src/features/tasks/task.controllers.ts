@@ -101,3 +101,26 @@ export async function deleteComment(req: Request, res: Response): Promise<void> 
   }
   res.status(204).send();
 }
+
+// Agent execution controllers
+export async function logAgentExecution(req: Request, res: Response): Promise<void> {
+  const taskId = req.params.id as string;
+  try {
+    const log = await taskService.createAgentExecution(taskId, req.body);
+    res.status(201).json(log);
+  } catch (error) {
+    console.error('Agent execution log error:', error);
+    res.status(500).json({ error: 'Failed to log agent execution' });
+  }
+}
+
+export async function getAgentExecutionLogs(req: Request, res: Response): Promise<void> {
+  const taskId = req.params.id as string;
+  try {
+    const logs = await taskService.getAgentExecutions(taskId);
+    res.json(logs);
+  } catch (error) {
+    console.error('Get agent logs error:', error);
+    res.status(500).json({ error: 'Failed to get agent execution logs' });
+  }
+}

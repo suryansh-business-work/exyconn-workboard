@@ -3,8 +3,31 @@
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
 if [ "$branch" = "main" ]; then
-  echo "❌ Direct push to 'main' branch is not allowed!"
+  echo "❌ Direct commits to 'main' branch are not allowed!"
   echo "📝 Please create a feature branch and submit a pull request."
   exit 1
 fi
 echo "✅ Branch check passed: $branch"
+
+echo "🔍 Running type checks..."
+if ! npm run typecheck; then
+  echo "❌ Type checks failed. Please fix TypeScript errors."
+  exit 1
+fi
+echo "✅ Type checks passed."
+
+echo "🔍 Running lint checks..."
+if ! npm run lint; then
+  echo "❌ Lint checks failed. Please fix ESLint errors."
+  exit 1
+fi
+echo "✅ Lint checks passed."
+
+echo "🔍 Running format checks..."
+if ! npm run format:check; then
+  echo "❌ Format checks failed. Please run 'npm run format' to fix formatting."
+  exit 1
+fi
+echo "✅ Format checks passed."
+
+echo "🎉 All checks passed. Proceeding with commit."

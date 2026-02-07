@@ -32,6 +32,15 @@ export const createTaskSchema = z.object({
     )
     .optional()
     .default([]),
+  agents: z
+    .array(
+      z.object({
+        agentId: z.string().min(1, 'Agent ID is required'),
+        agentName: z.string().min(1, 'Agent name is required'),
+      })
+    )
+    .optional()
+    .default([]),
 });
 
 export const updateTaskSchema = createTaskSchema.partial();
@@ -55,7 +64,31 @@ export const aiSearchSchema = z.object({
   query: z.string().min(1, 'Search query is required').max(500),
 });
 
+export const agentExecutionSchema = z.object({
+  agentId: z.string().min(1),
+  agentName: z.string().min(1),
+  status: z.enum(['running', 'success', 'error']),
+  nodeResults: z
+    .array(
+      z.object({
+        nodeId: z.string(),
+        nodeName: z.string(),
+        category: z.string().optional().default(''),
+        success: z.boolean(),
+        result: z.unknown().optional(),
+        error: z.string().optional(),
+        logs: z.array(z.string()).optional().default([]),
+        duration: z.number().optional().default(0),
+      })
+    )
+    .optional()
+    .default([]),
+  totalDuration: z.number().optional().default(0),
+  triggeredBy: z.string().optional().default('System'),
+});
+
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type CommentInput = z.infer<typeof commentSchema>;
 export type AISearchInput = z.infer<typeof aiSearchSchema>;
+export type AgentExecutionInput = z.infer<typeof agentExecutionSchema>;
