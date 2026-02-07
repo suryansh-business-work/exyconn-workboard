@@ -29,6 +29,7 @@ const CreateTaskDialog = ({ open, onClose, task }: CreateTaskDialogProps) => {
     formData,
     setFormData,
     developers,
+    agents,
     labelInput,
     setLabelInput,
     saving,
@@ -67,6 +68,7 @@ const CreateTaskDialog = ({ open, onClose, task }: CreateTaskDialogProps) => {
               priority={formData.priority}
               dueDate={dueDate}
               developers={developers}
+              agents={agents}
               onTitleChange={(v) => setFormData({ ...formData, title: v })}
               onDescriptionChange={(v) => setFormData({ ...formData, description: v })}
               onAssigneeChange={(v) => setFormData({ ...formData, assignee: v })}

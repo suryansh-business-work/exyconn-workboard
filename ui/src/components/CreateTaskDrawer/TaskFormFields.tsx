@@ -16,6 +16,7 @@ const TaskFormFields = ({
   touched,
   setFieldValue,
   developers,
+  agents,
   projects,
   rewriting,
   onRewriteDescription,
@@ -77,6 +78,7 @@ const TaskFormFields = ({
         touched={touched}
         setFieldValue={setFieldValue}
         developers={developers}
+        agents={agents}
         projects={projects}
       />
 

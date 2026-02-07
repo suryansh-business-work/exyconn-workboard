@@ -17,6 +17,7 @@ import './CreateTaskDrawer.scss';
 const CreateTaskDrawer = ({ open, onClose, task }: CreateTaskDrawerProps) => {
   const {
     developers,
+    agents,
     projects,
     loading,
     formikRef,
@@ -102,6 +103,7 @@ const CreateTaskDrawer = ({ open, onClose, task }: CreateTaskDrawerProps) => {
                     touched={touched as Record<string, boolean>}
                     setFieldValue={setFieldValue}
                     developers={developers}
+                    agents={agents}
                     projects={projects}
                     rewriting={rewriting}
                     onRewriteDescription={() =>

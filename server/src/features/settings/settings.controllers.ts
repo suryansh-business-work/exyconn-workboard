@@ -456,6 +456,7 @@ Return JSON:
 
 Rules:
 - Only include components in workflow.nodes that exist in the available list (exact name match)
+- Every workflow MUST start with an event trigger node as the very first node (index 0). If no event component exists, add it to missingComponents.
 - Position nodes in a nice vertical layout, 200px apart vertically
 - Keep messages short and helpful. Use HTML formatting.
 - If user asks general questions (not building), just answer in message field with empty missingComponents and null workflow`;

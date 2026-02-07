@@ -30,10 +30,13 @@ const STATUS_STYLES: Record<
 
 const AgentNode = ({ data, selected, id }: NodeProps & { data: AgentNodeData }) => {
   const config = data?.config ?? {};
-  const configCount = Object.keys(config).length;
+  const configKeys = Object.keys(config).filter((k) => k !== '_code');
+  const configCount = configKeys.length;
+  const hasCode = data?.category === 'logic' || data?.category === 'custom';
+  const codeOnly = !!config._code && configKeys.length === 0;
+  const configPending = configKeys.length === 0 && !hasCode && !codeOnly;
   const statusStyle = data?.execStatus ? STATUS_STYLES[data.execStatus] : null;
   const isEvent = data?.category === 'event';
-  const hasCode = data?.category === 'logic' || data?.category === 'custom';
 
   return (
     <Box
@@ -72,11 +75,18 @@ const AgentNode = ({ data, selected, id }: NodeProps & { data: AgentNodeData }) 
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
           {data?.componentName ?? 'Unnamed'}
         </Typography>
-        {configCount > 0 && (
-          <Typography variant="caption" color="text.secondary">
-            {configCount} field(s)
+        {configPending ? (
+          <Typography
+            variant="caption"
+            sx={{ color: '#f57c00', fontWeight: 600, display: 'block' }}
+          >
+            ⚠ Configuration Pending
           </Typography>
-        )}
+        ) : configCount > 0 ? (
+          <Typography variant="caption" color="text.secondary">
+            {configCount} field(s) configured
+          </Typography>
+        ) : null}
         {hasCode && config._code && (
           <Typography variant="caption" color="info.main" sx={{ display: 'block' }}>
             Has code

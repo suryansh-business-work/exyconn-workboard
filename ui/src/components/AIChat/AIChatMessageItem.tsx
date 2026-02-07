@@ -43,9 +43,29 @@ function AIChatMessageItem<TMetadata>({
         }}
         elevation={1}
       >
-        <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
-          {message.content}
-        </Typography>
+        {!isUser && message.content.includes('<') ? (
+          <Box
+            sx={{
+              '& p': { m: 0, mb: 0.5 },
+              '& ul, & ol': { m: 0, pl: 2 },
+              '& li': { mb: 0.25 },
+              '& strong': { fontWeight: 600 },
+              '& code': {
+                bgcolor: 'action.hover',
+                px: 0.5,
+                borderRadius: 0.5,
+                fontSize: '0.85em',
+              },
+              fontSize: '0.875rem',
+              lineHeight: 1.5,
+            }}
+            dangerouslySetInnerHTML={{ __html: message.content }}
+          />
+        ) : (
+          <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
+            {message.content}
+          </Typography>
+        )}
         {renderAction && renderAction(message)}
       </Paper>
     </Box>

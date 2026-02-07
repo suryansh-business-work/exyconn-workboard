@@ -29,7 +29,14 @@ export const createAgentSchema = z.object({
   edges: z.array(workflowEdgeSchema).optional().default([]),
 });
 
-export const updateAgentSchema = createAgentSchema.partial();
+export const updateAgentSchema = createAgentSchema.partial().extend({
+  status: AgentStatusEnum.optional(),
+  description: z.string().max(1000).optional(),
+  capabilities: z.array(z.string()).optional(),
+  configuration: z.record(z.string(), z.unknown()).optional(),
+  nodes: z.array(workflowNodeSchema).optional(),
+  edges: z.array(workflowEdgeSchema).optional(),
+});
 
 export const agentIdParamSchema = z.object({
   id: z.string().min(1, 'Agent ID is required'),

@@ -28,6 +28,7 @@ export const useTaskDrawer = ({ open, task, onClose }: UseTaskDrawerProps) => {
   // Form hook
   const {
     developers,
+    agents,
     projects,
     loading,
     formikRef,
@@ -55,6 +56,7 @@ export const useTaskDrawer = ({ open, task, onClose }: UseTaskDrawerProps) => {
   return {
     // Data
     developers,
+    agents,
     projects,
     loading,
     formikRef,

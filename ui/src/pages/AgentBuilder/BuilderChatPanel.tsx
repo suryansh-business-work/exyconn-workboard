@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Box, Typography, IconButton, Collapse } from '@mui/material';
 import {
   Chat as ChatIcon,
@@ -77,6 +77,19 @@ const BuilderChatPanel = ({
     { onSendMessage: handleSendMessage }
   );
 
+  // Track whether auto-prompt has been triggered to avoid repeated prompts
+  const autoPromptedRef = useRef(false);
+
+  const handleAllComponentsCreated = useCallback(() => {
+    if (autoPromptedRef.current) return;
+    autoPromptedRef.current = true;
+    setInput('All missing components are now created. Please build the workflow.');
+    setTimeout(
+      () => send('All missing components are now created. Please build the workflow.'),
+      500
+    );
+  }, [send, setInput]);
+
   const renderAction = useCallback(
     (msg: { metadata?: BuildMeta }) => {
       if (!msg.metadata) return null;
@@ -89,10 +102,11 @@ const BuilderChatPanel = ({
           components={components}
           onComponentCreated={onComponentCreated}
           onBuildWorkflow={onBuildWorkflow}
+          onAllComponentsCreated={handleAllComponentsCreated}
         />
       );
     },
-    [components, onComponentCreated, onBuildWorkflow]
+    [components, onComponentCreated, onBuildWorkflow, handleAllComponentsCreated]
   );
 
   return (
