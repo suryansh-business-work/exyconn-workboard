@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { FormikProps } from 'formik';
 import dayjs from 'dayjs';
-import { Developer, Project, ParsedTask, TaskPriority } from '../../types';
+import { Developer, Project, ParsedTask, TaskPriority, Agent } from '../../types';
 import {
   taskService,
   developerService,
   projectService,
   settingsService,
+  agentService,
 } from '../../services';
 import { FormValues, Task } from './types';
 
@@ -20,7 +21,9 @@ interface UseTaskFormProps {
 
 export interface UseTaskFormReturn {
   developers: Developer[];
+  agents: Agent[];
   projects: Project[];
+  loading: boolean;
   formikRef: React.MutableRefObject<FormikProps<FormValues> | null>;
   initialValues: FormValues;
   rewriting: boolean;
@@ -45,21 +48,30 @@ export const useTaskForm = ({
   clearPendingParsedTask,
 }: UseTaskFormProps): UseTaskFormReturn => {
   const [developers, setDevelopers] = useState<Developer[]>([]);
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
   const [rewriting, setRewriting] = useState(false);
 
   const formikRef = useRef<FormikProps<FormValues>>(null);
   const isEditMode = !!task;
 
-  // Load developers and projects when drawer opens
+  // Load developers, agents and projects when drawer opens
   useEffect(() => {
     if (open) {
-      Promise.all([developerService.getAll(), projectService.getAll()])
-        .then(([devs, projs]) => {
+      setLoading(true);
+      Promise.all([
+        developerService.getAll(),
+        projectService.getAll(),
+        agentService.getAll(),
+      ])
+        .then(([devs, projs, agts]) => {
           setDevelopers(devs);
           setProjects(projs);
+          setAgents(agts.filter((a) => a.status === 'active'));
         })
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => setLoading(false));
     }
   }, [open]);
 
@@ -176,7 +188,9 @@ export const useTaskForm = ({
 
   return {
     developers,
+    agents,
     projects,
+    loading,
     formikRef,
     initialValues,
     rewriting,

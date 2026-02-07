@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Box, Typography, IconButton, Collapse } from '@mui/material';
 import {
   Chat as ChatIcon,
@@ -9,56 +9,109 @@ import AIChatInput from '../../components/AIChat/AIChatInput';
 import AIChatMessageItem from '../../components/AIChat/AIChatMessageItem';
 import AIChatLoading from '../../components/AIChat/AIChatLoading';
 import { useAIChat } from '../../components/AIChat/useAIChat';
+import BuilderChatActions from './BuilderChatActions';
 import { settingsService } from '../../services';
-import type { WorkflowNode, WorkflowEdge } from '../../types';
+import type {
+  WorkflowNode,
+  WorkflowEdge,
+  AgentComponent,
+  BuildAgentResponse,
+  SuggestedWorkflow,
+} from '../../types';
+
+interface BuildMeta {
+  missingComponents: BuildAgentResponse['missingComponents'];
+  workflow: BuildAgentResponse['workflow'];
+}
 
 interface Props {
   agentName: string;
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
+  components: AgentComponent[];
+  onComponentCreated: (comp: AgentComponent) => void;
+  onBuildWorkflow: (workflow: SuggestedWorkflow) => void;
 }
 
-const BuilderChatPanel = ({ agentName, nodes, edges }: Props) => {
+const BuilderChatPanel = ({
+  nodes,
+  edges,
+  components,
+  onComponentCreated,
+  onBuildWorkflow,
+}: Props) => {
   const [expanded, setExpanded] = useState(false);
 
   const handleSendMessage = useCallback(
     async (message: string, history: { role: string; content: string }[]) => {
-      const contextPrompt = `You are an AI agent builder assistant. The user is building an agent called "${agentName}". Current workflow has ${nodes.length} nodes and ${edges.length} connections. Nodes: ${JSON.stringify(nodes.map((n) => ({ name: n.componentName, category: n.category })))}. Help them optimize, debug, or extend the workflow.`;
-
-      const config = await settingsService.getOpenAIConfig();
-      const apiKey = config?.apiKey;
-      if (!apiKey) return { content: 'OpenAI API key is not configured. Go to Settings to add it.' };
-
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: config.openAIModel || 'gpt-4o-mini',
-          max_tokens: config.maxTokens || 1000,
-          messages: [
-            { role: 'system', content: contextPrompt },
-            ...history.map((h) => ({ role: h.role, content: h.content })),
-            { role: 'user', content: message },
-          ],
-        }),
-      });
-      const data = await res.json();
-      return { content: data.choices?.[0]?.message?.content || 'No response' };
+      try {
+        const result = await settingsService.buildAgent({
+          message,
+          components: components.map((c) => ({
+            id: c.id,
+            name: c.name,
+            category: c.category,
+            description: c.description,
+          })),
+          currentNodes: nodes.map((n) => ({
+            componentName: n.componentName,
+            category: n.category,
+          })),
+          history: history.slice(-10),
+        });
+        return {
+          content: result.message,
+          metadata: {
+            missingComponents: result.missingComponents || [],
+            workflow: result.workflow || null,
+          } as BuildMeta,
+        };
+      } catch {
+        return { content: 'Failed to get response. Check OpenAI settings.' };
+      }
     },
-    [agentName, nodes, edges]
+    [components, nodes]
   );
 
-  const { messages, input, setInput, loading, send, containerRef } = useAIChat({
-    onSendMessage: handleSendMessage,
-  });
+  const { messages, input, setInput, loading, send, containerRef } = useAIChat<BuildMeta>(
+    { onSendMessage: handleSendMessage }
+  );
+
+  // Track whether auto-prompt has been triggered to avoid repeated prompts
+  const autoPromptedRef = useRef(false);
+
+  const handleAllComponentsCreated = useCallback(() => {
+    if (autoPromptedRef.current) return;
+    autoPromptedRef.current = true;
+    setInput('All missing components are now created. Please build the workflow.');
+    setTimeout(
+      () => send('All missing components are now created. Please build the workflow.'),
+      500
+    );
+  }, [send, setInput]);
+
+  const renderAction = useCallback(
+    (msg: { metadata?: BuildMeta }) => {
+      if (!msg.metadata) return null;
+      const { missingComponents, workflow } = msg.metadata;
+      if ((!missingComponents || !missingComponents.length) && !workflow) return null;
+      return (
+        <BuilderChatActions
+          missingComponents={missingComponents || []}
+          workflow={workflow || null}
+          components={components}
+          onComponentCreated={onComponentCreated}
+          onBuildWorkflow={onBuildWorkflow}
+          onAllComponentsCreated={handleAllComponentsCreated}
+        />
+      );
+    },
+    [components, onComponentCreated, onBuildWorkflow, handleAllComponentsCreated]
+  );
 
   return (
     <Box
-      sx={{
-        borderTop: '1px solid',
-        borderColor: 'divider',
-        backgroundColor: 'background.paper',
-      }}
+      sx={{ borderTop: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}
     >
       <Box
         sx={{
@@ -67,13 +120,16 @@ const BuilderChatPanel = ({ agentName, nodes, edges }: Props) => {
           px: 2,
           py: 0.5,
           cursor: 'pointer',
-          '&:hover': { backgroundColor: 'action.hover' },
+          '&:hover': { bgcolor: 'action.hover' },
         }}
         onClick={() => setExpanded(!expanded)}
       >
         <ChatIcon sx={{ fontSize: 18, mr: 1, color: 'primary.main' }} />
         <Typography variant="subtitle2" sx={{ flex: 1, fontWeight: 600 }}>
-          Agent Assistant
+          Agent Assistant&nbsp;
+          <Typography component="span" variant="caption" color="text.secondary">
+            ({nodes.length} nodes, {edges.length} edges)
+          </Typography>
         </Typography>
         <IconButton size="small">
           {expanded ? <CloseIcon fontSize="small" /> : <ExpandIcon fontSize="small" />}
@@ -83,7 +139,7 @@ const BuilderChatPanel = ({ agentName, nodes, edges }: Props) => {
         <Box
           ref={containerRef}
           sx={{
-            height: 240,
+            height: 260,
             overflow: 'auto',
             px: 2,
             py: 1,
@@ -93,21 +149,26 @@ const BuilderChatPanel = ({ agentName, nodes, edges }: Props) => {
           }}
         >
           {messages.length === 0 && (
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
-              Ask about your agent workflow — optimization, debugging, or ideas.
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ textAlign: 'center', mt: 4 }}
+            >
+              Describe the agent you want to build. I&apos;ll suggest components and
+              create the workflow automatically.
             </Typography>
           )}
           {messages.map((msg) => (
-            <AIChatMessageItem key={msg.id} message={msg} />
+            <AIChatMessageItem key={msg.id} message={msg} renderAction={renderAction} />
           ))}
-          {loading && <AIChatLoading text="Thinking..." />}
+          {loading && <AIChatLoading text="Analyzing components..." />}
         </Box>
         <AIChatInput
           value={input}
           onChange={setInput}
           onSend={() => send()}
           disabled={loading}
-          placeholder="Ask about your agent workflow..."
+          placeholder="Describe the agent you want to build..."
         />
       </Collapse>
     </Box>

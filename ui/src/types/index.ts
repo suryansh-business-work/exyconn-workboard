@@ -3,6 +3,30 @@ export interface TaskAgent {
   agentName: string;
 }
 
+export interface AgentExecutionNodeResult {
+  nodeId: string;
+  nodeName: string;
+  category: string;
+  success: boolean;
+  result?: unknown;
+  error?: string;
+  logs: string[];
+  duration: number;
+}
+
+export interface AgentExecutionLog {
+  _id: string;
+  taskId: string;
+  agentId: string;
+  agentName: string;
+  status: 'running' | 'success' | 'error';
+  nodeResults: AgentExecutionNodeResult[];
+  totalDuration: number;
+  triggeredBy: string;
+  startedAt: string;
+  completedAt?: string;
+}
+
 export interface Task {
   id: string;
   taskId: string;
@@ -235,6 +259,7 @@ export interface AgentComponent {
   icon: string;
   color: string;
   configSchema: ConfigField[];
+  defaultCode: string;
   status: 'active' | 'inactive';
   createdAt: string;
   updatedAt: string;
@@ -247,6 +272,7 @@ export interface CreateAgentComponentPayload {
   icon: string;
   color: string;
   configSchema: ConfigField[];
+  defaultCode: string;
   status: 'active' | 'inactive';
 }
 
@@ -295,4 +321,29 @@ export interface CreateAgentPayload {
 
 export interface UpdateAgentPayload extends Partial<CreateAgentPayload> {
   id: string;
+}
+
+// ============ Build Agent Assistant Types ============
+
+export interface MissingComponent {
+  name: string;
+  category: string;
+  description: string;
+  suggestedPrompt: string;
+}
+
+export interface SuggestedWorkflow {
+  nodes: {
+    componentName: string;
+    category: string;
+    position: { x: number; y: number };
+    config: Record<string, string>;
+  }[];
+  edges: { sourceIndex: number; targetIndex: number }[];
+}
+
+export interface BuildAgentResponse {
+  message: string;
+  missingComponents: MissingComponent[];
+  workflow: SuggestedWorkflow | null;
 }

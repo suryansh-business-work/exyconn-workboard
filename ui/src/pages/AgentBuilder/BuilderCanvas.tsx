@@ -1,8 +1,16 @@
 import { useCallback, useRef, useMemo } from 'react';
 import { Box } from '@mui/material';
 import {
-  ReactFlow, Background, Controls, MiniMap,
-  Node, Edge, Connection, NodeChange, EdgeChange,
+  ReactFlow,
+  Background,
+  Controls,
+  MiniMap,
+  Node,
+  Edge,
+  Connection,
+  NodeChange,
+  EdgeChange,
+  useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import AgentNode from './AgentNode';
@@ -21,11 +29,18 @@ interface Props {
 }
 
 const BuilderCanvas = ({
-  nodes, edges, onNodesChange, onEdgesChange,
-  onConnect, onNodeClick, onPaneClick, onAddNode,
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  onNodeClick,
+  onPaneClick,
+  onAddNode,
 }: Props) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const nodeTypes = useMemo(() => ({ agentNode: AgentNode }), []);
+  const { screenToFlowPosition } = useReactFlow();
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
@@ -33,14 +48,16 @@ const BuilderCanvas = ({
       const raw = event.dataTransfer.getData('application/agentComponent');
       if (!raw) return;
       const component: AgentComponent = JSON.parse(raw);
-      const bounds = wrapperRef.current?.getBoundingClientRect();
-      if (!bounds) return;
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
       onAddNode(component, {
-        x: event.clientX - bounds.left - 90,
-        y: event.clientY - bounds.top - 30,
+        x: position.x - 90,
+        y: position.y - 30,
       });
     },
-    [onAddNode]
+    [onAddNode, screenToFlowPosition]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -49,7 +66,12 @@ const BuilderCanvas = ({
   }, []);
 
   return (
-    <Box ref={wrapperRef} sx={{ flex: 1, height: '100%' }} onDrop={onDrop} onDragOver={onDragOver}>
+    <Box
+      ref={wrapperRef}
+      sx={{ flex: 1, height: '100%' }}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -60,6 +82,8 @@ const BuilderCanvas = ({
         onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
         fitView
+        fitViewOptions={{ padding: 0.4, maxZoom: 0.85 }}
+        minZoom={0.2}
         deleteKeyCode="Delete"
       >
         <Background />

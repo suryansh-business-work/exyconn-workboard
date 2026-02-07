@@ -9,13 +9,26 @@ interface Props {
   height?: number;
 }
 
-const MonacoCodeField = ({ label, value, onChange, language = 'javascript', height = 200 }: Props) => {
+const MonacoCodeField = ({
+  label,
+  value,
+  onChange,
+  language = 'javascript',
+  height = 200,
+}: Props) => {
   return (
     <Box>
       <Typography variant="caption" sx={{ mb: 0.5, display: 'block', fontWeight: 600 }}>
         {label}
       </Typography>
-      <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+      <Box
+        sx={{
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 1,
+          overflow: 'hidden',
+        }}
+      >
         <Editor
           height={height}
           language={language}

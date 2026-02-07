@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Autocomplete,
-  TextField,
-  Chip,
-} from '@mui/material';
+import { Box, Typography, Autocomplete, TextField, Chip } from '@mui/material';
 import { SmartToy as AgentIcon } from '@mui/icons-material';
 import { Agent, TaskAgent } from '../../types';
 import { agentService } from '../../services';
@@ -40,9 +34,7 @@ const TaskAgentSelector = ({ selectedAgents, onChange }: TaskAgentSelectorProps)
         getOptionLabel={(option) => option.name}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         onChange={(_, newValue) => {
-          onChange(
-            newValue.map((a) => ({ agentId: a.id, agentName: a.name }))
-          );
+          onChange(newValue.map((a) => ({ agentId: a.id, agentName: a.name })));
         }}
         renderInput={(params) => (
           <TextField {...params} placeholder="Select agents..." size="small" />

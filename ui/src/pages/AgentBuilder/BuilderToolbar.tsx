@@ -4,6 +4,7 @@ import {
   ArrowBack as BackIcon,
   PlayArrow as PlayIcon,
   Stop as StopIcon,
+  Download as DownloadIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,11 +16,18 @@ interface Props {
   onSave: () => void;
   onExecute: () => void;
   onStop: () => void;
+  onDownload: () => void;
 }
 
 const BuilderToolbar = ({
-  agentName, saving, executing, nodeCount,
-  onSave, onExecute, onStop,
+  agentName,
+  saving,
+  executing,
+  nodeCount,
+  onSave,
+  onExecute,
+  onStop,
+  onDownload,
 }: Props) => {
   const navigate = useNavigate();
 
@@ -28,21 +36,43 @@ const BuilderToolbar = ({
       sx={{
         display: 'flex',
         alignItems: 'center',
-        gap: 1.5,
-        px: 1.5,
-        py: 1,
+        gap: 1,
+        px: 1,
+        py: 0.5,
         borderBottom: '1px solid',
         borderColor: 'divider',
         flexWrap: 'wrap',
       }}
     >
-      <Button size="small" startIcon={<BackIcon />} onClick={() => navigate('/agents')}>
+      <Button
+        size="small"
+        startIcon={<BackIcon />}
+        onClick={() => navigate('/agents')}
+        sx={{ minWidth: 0 }}
+      >
         Back
       </Button>
-      <Typography variant="h6" sx={{ fontWeight: 700, flex: 1, fontSize: { xs: 14, sm: 18 } }} noWrap>
-        {agentName} — Builder
+      <Typography
+        variant="subtitle1"
+        sx={{ fontWeight: 700, flex: 1, fontSize: { xs: 13, sm: 16 } }}
+        noWrap
+      >
+        {agentName}
       </Typography>
-      <Chip label={`${nodeCount} nodes`} size="small" variant="outlined" />
+      <Chip
+        label={`${nodeCount}`}
+        size="small"
+        variant="outlined"
+        sx={{ height: 22, fontSize: 11 }}
+      />
+      <Button
+        size="small"
+        startIcon={<DownloadIcon />}
+        onClick={onDownload}
+        sx={{ minWidth: 0, fontSize: 12 }}
+      >
+        Export
+      </Button>
       {executing ? (
         <Button
           variant="contained"

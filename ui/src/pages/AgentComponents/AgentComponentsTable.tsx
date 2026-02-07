@@ -1,7 +1,19 @@
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, IconButton, Chip, Tooltip, TablePagination, TextField,
-  Box, TableSortLabel, MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Chip,
+  Tooltip,
+  TablePagination,
+  TextField,
+  Box,
+  TableSortLabel,
+  MenuItem,
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useState, useMemo } from 'react';
@@ -17,12 +29,23 @@ type SortField = 'name' | 'category' | 'status' | 'createdAt';
 type SortOrder = 'asc' | 'desc';
 
 const CATEGORIES: AgentComponentCategory[] = [
-  'event', 'data-scrapper', 'communication', 'ai', 'action', 'logic', 'custom',
+  'event',
+  'data-scrapper',
+  'communication',
+  'ai',
+  'action',
+  'logic',
+  'custom',
 ];
 
 const CATEGORY_COLORS: Record<AgentComponentCategory, string> = {
-  event: '#1976d2', 'data-scrapper': '#f57c00', communication: '#2e7d32',
-  ai: '#9c27b0', action: '#d32f2f', logic: '#00796b', custom: '#616161',
+  event: '#1976d2',
+  'data-scrapper': '#f57c00',
+  communication: '#2e7d32',
+  ai: '#9c27b0',
+  action: '#d32f2f',
+  logic: '#00796b',
+  custom: '#616161',
 };
 
 const AgentComponentsTable = ({ components, onEdit, onDelete }: Props) => {
@@ -64,17 +87,28 @@ const AgentComponentsTable = ({ components, onEdit, onDelete }: Props) => {
           placeholder="Search components..."
           size="small"
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(0);
+          }}
           sx={{ minWidth: 240 }}
         />
         <TextField
-          select size="small" label="Category" value={categoryFilter}
-          onChange={(e) => { setCategoryFilter(e.target.value); setPage(0); }}
+          select
+          size="small"
+          label="Category"
+          value={categoryFilter}
+          onChange={(e) => {
+            setCategoryFilter(e.target.value);
+            setPage(0);
+          }}
           sx={{ minWidth: 160 }}
         >
           <MenuItem value="">All</MenuItem>
           {CATEGORIES.map((c) => (
-            <MenuItem key={c} value={c}>{c.replace('-', ' ')}</MenuItem>
+            <MenuItem key={c} value={c}>
+              {c.replace('-', ' ')}
+            </MenuItem>
           ))}
         </TextField>
       </Box>
@@ -83,23 +117,39 @@ const AgentComponentsTable = ({ components, onEdit, onDelete }: Props) => {
           <TableHead>
             <TableRow>
               <TableCell>
-                <TableSortLabel active={sortField === 'name'} direction={sortField === 'name' ? sortOrder : 'asc'} onClick={() => handleSort('name')}>
+                <TableSortLabel
+                  active={sortField === 'name'}
+                  direction={sortField === 'name' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('name')}
+                >
                   Name
                 </TableSortLabel>
               </TableCell>
               <TableCell>
-                <TableSortLabel active={sortField === 'category'} direction={sortField === 'category' ? sortOrder : 'asc'} onClick={() => handleSort('category')}>
+                <TableSortLabel
+                  active={sortField === 'category'}
+                  direction={sortField === 'category' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('category')}
+                >
                   Category
                 </TableSortLabel>
               </TableCell>
               <TableCell>Config Fields</TableCell>
               <TableCell>
-                <TableSortLabel active={sortField === 'status'} direction={sortField === 'status' ? sortOrder : 'asc'} onClick={() => handleSort('status')}>
+                <TableSortLabel
+                  active={sortField === 'status'}
+                  direction={sortField === 'status' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('status')}
+                >
                   Status
                 </TableSortLabel>
               </TableCell>
               <TableCell>
-                <TableSortLabel active={sortField === 'createdAt'} direction={sortField === 'createdAt' ? sortOrder : 'asc'} onClick={() => handleSort('createdAt')}>
+                <TableSortLabel
+                  active={sortField === 'createdAt'}
+                  direction={sortField === 'createdAt' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('createdAt')}
+                >
                   Created
                 </TableSortLabel>
               </TableCell>
@@ -111,25 +161,47 @@ const AgentComponentsTable = ({ components, onEdit, onDelete }: Props) => {
               <TableRow key={comp.id} hover>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: comp.color || CATEGORY_COLORS[comp.category] }} />
+                    <Box
+                      sx={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: '50%',
+                        backgroundColor: comp.color || CATEGORY_COLORS[comp.category],
+                      }}
+                    />
                     {comp.name}
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Chip label={comp.category.replace('-', ' ')} size="small"
-                    sx={{ backgroundColor: CATEGORY_COLORS[comp.category], color: '#fff', textTransform: 'capitalize' }} />
+                  <Chip
+                    label={comp.category.replace('-', ' ')}
+                    size="small"
+                    sx={{
+                      backgroundColor: CATEGORY_COLORS[comp.category],
+                      color: '#fff',
+                      textTransform: 'capitalize',
+                    }}
+                  />
                 </TableCell>
                 <TableCell>{comp.configSchema.length}</TableCell>
                 <TableCell>
-                  <Chip label={comp.status} size="small" color={comp.status === 'active' ? 'success' : 'default'} />
+                  <Chip
+                    label={comp.status}
+                    size="small"
+                    color={comp.status === 'active' ? 'success' : 'default'}
+                  />
                 </TableCell>
                 <TableCell>{new Date(comp.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="Edit">
-                    <IconButton size="small" onClick={() => onEdit(comp)}><EditIcon fontSize="small" /></IconButton>
+                    <IconButton size="small" onClick={() => onEdit(comp)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete">
-                    <IconButton size="small" onClick={() => onDelete(comp)}><DeleteIcon fontSize="small" color="error" /></IconButton>
+                    <IconButton size="small" onClick={() => onDelete(comp)}>
+                      <DeleteIcon fontSize="small" color="error" />
+                    </IconButton>
                   </Tooltip>
                 </TableCell>
               </TableRow>
@@ -137,7 +209,9 @@ const AgentComponentsTable = ({ components, onEdit, onDelete }: Props) => {
             {paginated.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                  {search || categoryFilter ? 'No components match your filters.' : 'No components created yet.'}
+                  {search || categoryFilter
+                    ? 'No components match your filters.'
+                    : 'No components created yet.'}
                 </TableCell>
               </TableRow>
             )}
@@ -145,9 +219,15 @@ const AgentComponentsTable = ({ components, onEdit, onDelete }: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        component="div" count={filtered.length} page={page}
-        onPageChange={(_, p) => setPage(p)} rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+        component="div"
+        count={filtered.length}
+        page={page}
+        onPageChange={(_, p) => setPage(p)}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
         rowsPerPageOptions={[5, 10, 25]}
       />
     </Box>

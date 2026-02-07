@@ -1,10 +1,32 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Button, CircularProgress, Box, Alert } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import {
+  Button,
+  ButtonGroup,
+  CircularProgress,
+  Box,
+  Alert,
+  TextField,
+  InputAdornment,
+  Popper,
+  Grow,
+  Paper,
+  ClickAwayListener,
+  MenuList,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  AutoAwesome as AIIcon,
+  ArrowDropDown as ArrowDropDownIcon,
+  Search as SearchIcon,
+} from '@mui/icons-material';
 import PageHeader from '../../components/PageHeader';
 import DeleteConfirmDialog from '../../components/DeleteConfirmDialog/DeleteConfirmDialog';
 import AgentComponentsTable from './AgentComponentsTable';
 import AgentComponentFormDialog from './AgentComponentFormDialog';
+import AIComponentDialog from './AIComponentDialog';
 import { agentComponentService } from '../../services';
 import { AgentComponent, CreateAgentComponentPayload } from '../../types';
 
@@ -13,8 +35,23 @@ const AgentComponents = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AgentComponent | null>(null);
   const [deleting, setDeleting] = useState<AgentComponent | null>(null);
+  const [search, setSearch] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const anchorRef = useRef<HTMLDivElement>(null);
+
+  const filtered = useMemo(
+    () =>
+      components.filter(
+        (c) =>
+          c.name.toLowerCase().includes(search.toLowerCase()) ||
+          c.category.toLowerCase().includes(search.toLowerCase()) ||
+          c.description.toLowerCase().includes(search.toLowerCase())
+      ),
+    [components, search]
+  );
 
   const fetchComponents = useCallback(async () => {
     try {
@@ -81,14 +118,58 @@ const AgentComponents = () => {
     <Box>
       <PageHeader
         title="Agent Components"
-        breadcrumbs={[
-          { label: 'Agents', path: '/agents' },
-          { label: 'Components' },
-        ]}
+        breadcrumbs={[{ label: 'Agents', path: '/agents' }, { label: 'Components' }]}
         action={
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate}>
-            Add Component
-          </Button>
+          <>
+            <ButtonGroup variant="contained" ref={anchorRef}>
+              <Button startIcon={<AddIcon />} onClick={handleCreate}>
+                Create Component
+              </Button>
+              <Button size="small" onClick={() => setMenuOpen((p) => !p)}>
+                <ArrowDropDownIcon />
+              </Button>
+            </ButtonGroup>
+            <Popper
+              open={menuOpen}
+              anchorEl={anchorRef.current}
+              transition
+              disablePortal
+              sx={{ zIndex: 1 }}
+            >
+              {({ TransitionProps }) => (
+                <Grow {...TransitionProps}>
+                  <Paper elevation={4}>
+                    <ClickAwayListener onClickAway={() => setMenuOpen(false)}>
+                      <MenuList>
+                        <MenuItem
+                          onClick={() => {
+                            handleCreate();
+                            setMenuOpen(false);
+                          }}
+                        >
+                          <ListItemIcon>
+                            <AddIcon fontSize="small" />
+                          </ListItemIcon>
+                          <ListItemText>Manual Create</ListItemText>
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            setAiDialogOpen(true);
+                            setMenuOpen(false);
+                          }}
+                        >
+                          <ListItemIcon>
+                            <AIIcon fontSize="small" />
+                          </ListItemIcon>
+                          <ListItemText>AI Generate</ListItemText>
+                        </MenuItem>
+                      </MenuList>
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
+          </>
         }
       />
       {error && (
@@ -96,8 +177,24 @@ const AgentComponents = () => {
           {error}
         </Alert>
       )}
+      <TextField
+        size="small"
+        placeholder="Search components..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          },
+        }}
+        sx={{ mb: 2, maxWidth: 320 }}
+      />
       <AgentComponentsTable
-        components={components}
+        components={filtered}
         onEdit={handleEdit}
         onDelete={(c) => setDeleting(c)}
       />
@@ -116,6 +213,11 @@ const AgentComponents = () => {
         message={`Are you sure you want to delete "${deleting?.name}"?`}
         onClose={() => setDeleting(null)}
         onConfirm={handleDeleteConfirm}
+      />
+      <AIComponentDialog
+        open={aiDialogOpen}
+        onClose={() => setAiDialogOpen(false)}
+        onSubmit={handleSubmit}
       />
     </Box>
   );

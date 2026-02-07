@@ -22,6 +22,7 @@ import {
   TrendingUp as TrendingIcon,
   Person as PersonIcon,
   Folder as ProjectIcon,
+  SmartToy as AgentIcon,
 } from '@mui/icons-material';
 import {
   Chart as ChartJS,
@@ -35,7 +36,12 @@ import {
 } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { Task, TaskStatus, TaskPriority } from '../../types';
-import { taskService, projectService, developerService } from '../../services';
+import {
+  taskService,
+  projectService,
+  developerService,
+  agentService,
+} from '../../services';
 import PageHeader from '../../components/PageHeader';
 import './Dashboard.scss';
 
@@ -87,18 +93,21 @@ const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [projectCount, setProjectCount] = useState(0);
   const [developerCount, setDeveloperCount] = useState(0);
+  const [agentCount, setAgentCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [tasks, projects, developers] = await Promise.all([
+        const [tasks, projects, developers, agents] = await Promise.all([
           taskService.getAll(),
           projectService.getAll(),
           developerService.getAll(),
+          agentService.getAll(),
         ]);
 
         setProjectCount(projects.length);
         setDeveloperCount(developers.length);
+        setAgentCount(agents.filter((a) => a.status === 'active').length);
 
         const now = new Date();
         const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -331,6 +340,27 @@ const Dashboard = () => {
                   <Typography variant="h4">{developerCount}</Typography>
                 </Box>
                 <PersonIcon sx={{ fontSize: 40, color: '#ff9800', opacity: 0.7 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Box>
+                  <Typography color="text.secondary" variant="body2">
+                    AI Agents
+                  </Typography>
+                  <Typography variant="h4">{agentCount}</Typography>
+                </Box>
+                <AgentIcon sx={{ fontSize: 40, color: '#9c27b0', opacity: 0.7 }} />
               </Box>
             </CardContent>
           </Card>

@@ -11,12 +11,12 @@ import {
   CircularProgress,
   Typography,
 } from '@mui/material';
-import { AutoFixHigh as AIIcon } from '@mui/icons-material';
+import { AutoFixHigh as AIIcon, SmartToy as AgentIcon } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
-import { Developer, TaskStatus, TaskPriority, TASK_PRIORITIES } from '../../types';
+import { Developer, Agent, TaskStatus, TaskPriority, TASK_PRIORITIES } from '../../types';
 import QuillEditor from '../QuillEditor';
 import { settingsService } from '../../services';
 
@@ -28,6 +28,7 @@ interface TaskFormFieldsProps {
   priority: TaskPriority;
   dueDate: Dayjs | null;
   developers: Developer[];
+  agents: Agent[];
   onTitleChange: (val: string) => void;
   onDescriptionChange: (val: string) => void;
   onAssigneeChange: (val: string) => void;
@@ -110,9 +111,25 @@ const TaskFormFields = (props: TaskFormFieldsProps) => {
             label="Assignee"
             onChange={(e) => props.onAssigneeChange(e.target.value)}
           >
+            <MenuItem disabled sx={{ fontWeight: 700, opacity: 1 }}>
+              Team Members
+            </MenuItem>
             {props.developers.map((dev) => (
               <MenuItem key={dev.id} value={dev.name}>
                 {dev.name}
+              </MenuItem>
+            ))}
+            {props.agents.length > 0 && (
+              <MenuItem disabled sx={{ fontWeight: 700, opacity: 1 }}>
+                AI Agents
+              </MenuItem>
+            )}
+            {props.agents.map((agent) => (
+              <MenuItem key={agent.id} value={agent.name}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <AgentIcon sx={{ fontSize: 16, color: '#9c27b0' }} />
+                  {agent.name}
+                </Box>
               </MenuItem>
             ))}
           </Select>

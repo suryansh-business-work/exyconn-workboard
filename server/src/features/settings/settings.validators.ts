@@ -68,8 +68,41 @@ export const rewriteTextSchema = z.object({
   context: z.string().optional(),
 });
 
+export const generateCodeSchema = z.object({
+  prompt: z.string().min(1),
+  currentCode: z.string().optional().default(''),
+});
+
+export const generateComponentSchema = z.object({
+  prompt: z.string().min(1),
+});
+
+export const buildAgentSchema = z.object({
+  message: z.string().min(1),
+  components: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      category: z.string(),
+      description: z.string(),
+    })
+  ),
+  currentNodes: z
+    .array(
+      z.object({
+        componentName: z.string(),
+        category: z.string(),
+      })
+    )
+    .optional()
+    .default([]),
+  history: z.array(z.object({ role: z.string(), content: z.string() })).optional(),
+});
+
 export type SMTPConfigInput = z.infer<typeof smtpConfigSchema>;
 export type ImageKitConfigInput = z.infer<typeof imageKitConfigSchema>;
 export type OpenAIConfigInput = z.infer<typeof openAIConfigSchema>;
 export type TestEmailInput = z.infer<typeof testEmailSchema>;
 export type ParseTaskInput = z.infer<typeof parseTaskSchema>;
+export type GenerateCodeInput = z.infer<typeof generateCodeSchema>;
+export type GenerateComponentInput = z.infer<typeof generateComponentSchema>;

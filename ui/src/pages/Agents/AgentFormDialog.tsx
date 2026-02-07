@@ -94,18 +94,24 @@ const AgentFormDialog = ({ open, agent, onClose, onSubmit }: AgentFormDialogProp
           <TextField
             label="Name"
             name="name"
+            placeholder="e.g. Code Review Bot"
             value={formik.values.name}
             onChange={formik.handleChange}
             error={formik.touched.name && Boolean(formik.errors.name)}
-            helperText={formik.touched.name && formik.errors.name}
+            helperText={
+              (formik.touched.name && formik.errors.name) ||
+              'A short, descriptive agent name'
+            }
             fullWidth
             margin="dense"
           />
           <TextField
             label="Description"
             name="description"
+            placeholder="Describe what this agent does..."
             value={formik.values.description}
             onChange={formik.handleChange}
+            helperText="Brief description of the agent's purpose"
             multiline
             rows={3}
             fullWidth

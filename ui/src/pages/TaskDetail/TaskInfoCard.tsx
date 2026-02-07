@@ -1,5 +1,5 @@
 import { Box, Paper, Typography, Chip } from '@mui/material';
-import { SmartToy as AgentIcon } from '@mui/icons-material';
+import { SmartToy as AgentIcon, PlayArrow as PlayIcon } from '@mui/icons-material';
 import { Task } from '../../types';
 
 interface TaskInfoCardProps {
@@ -49,13 +49,26 @@ const TaskInfoCard = ({ task }: TaskInfoCardProps) => {
               <Chip
                 key={agent.agentId}
                 icon={<AgentIcon />}
+                deleteIcon={<PlayIcon sx={{ fontSize: 16 }} />}
                 label={agent.agentName}
                 size="small"
                 color="primary"
                 variant="outlined"
+                onDelete={() => {
+                  document
+                    .getElementById('agent-section')
+                    ?.scrollIntoView({ behavior: 'smooth' });
+                }}
               />
             ))}
           </Box>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ mt: 0.5, display: 'block' }}
+          >
+            Scroll down to execute agents
+          </Typography>
         </Box>
       )}
     </Paper>

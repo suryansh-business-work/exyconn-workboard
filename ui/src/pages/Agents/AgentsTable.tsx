@@ -14,7 +14,11 @@ import {
   Box,
   TableSortLabel,
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon, AccountTree as BuilderIcon } from '@mui/icons-material';
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  AccountTree as BuilderIcon,
+} from '@mui/icons-material';
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Agent } from '../../types';
@@ -132,7 +136,13 @@ const AgentsTable = ({ agents, onEdit, onDelete }: AgentsTableProps) => {
                   <Chip
                     label={agent.status}
                     size="small"
-                    color={agent.status === 'active' ? 'success' : agent.status === 'draft' ? 'warning' : 'default'}
+                    color={
+                      agent.status === 'active'
+                        ? 'success'
+                        : agent.status === 'draft'
+                          ? 'warning'
+                          : 'default'
+                    }
                   />
                 </TableCell>
                 <TableCell>
@@ -149,12 +159,13 @@ const AgentsTable = ({ agents, onEdit, onDelete }: AgentsTableProps) => {
                     )}
                   </Box>
                 </TableCell>
-                <TableCell>
-                  {new Date(agent.createdAt).toLocaleDateString()}
-                </TableCell>
+                <TableCell>{new Date(agent.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="Open Builder">
-                    <IconButton size="small" onClick={() => navigate(`/agents/${agent.id}/builder`)}>
+                    <IconButton
+                      size="small"
+                      onClick={() => navigate(`/agents/${agent.id}/builder`)}
+                    >
                       <BuilderIcon fontSize="small" color="primary" />
                     </IconButton>
                   </Tooltip>
